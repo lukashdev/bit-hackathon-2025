@@ -1,0 +1,8 @@
+{
+  "id": "progress_uuid_123",
+  "userId": "user_123",
+  "goalId": 101,
+  "isCompleted": true,
+  "completedAt": "2025-11-29T15:30:00.000Z",
+  "updatedAt": "2025-11-29T15:30:00.000Z"
+}

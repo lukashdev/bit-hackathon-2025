@@ -18,12 +18,17 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  
+  streak        Int       @default(0) 
+
   sessions      Session[]
   accounts      Account[]
 
   interests     UserInterest[]
   activities    ActivityParticipant[]
-  goals         Goal[]
+  
+  progress      Progress[]
+
   tasks         Task[]
   taskProofs    TaskProof[]
 
@@ -79,7 +84,6 @@ model Verification {
   @@map("verification")
 }
 
-// 4. Zainteresowania
 model Interest {
   id    Int            @id @default(autoincrement())
   name  String         @unique
@@ -88,7 +92,6 @@ model Interest {
   goals Goal[]
 }
 
-// 5. Powiązanie Użytkownika z Zainteresowaniem
 model UserInterest {
   userId     String
   interestId Int
@@ -99,7 +102,6 @@ model UserInterest {
   @@id([userId, interestId])
 }
 
-// 6. Aktywność (Grupa/Wydarzenie)
 model Activity {
   id          Int      @id @default(autoincrement())
   name        String
@@ -108,14 +110,14 @@ model Activity {
   updatedAt   DateTime @updatedAt
 
   participants ActivityParticipant[]
+  goals        Goal[]
 }
 
-// 7. Uczestnicy Aktywności (Tabela łącząca M-N)
 model ActivityParticipant {
   userId     String
   activityId Int
   joinedAt   DateTime @default(now())
-  role       String   @default("MEMBER") // OWNER, MEMBER, ADMIN
+  role       String   @default("MEMBER")
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
@@ -123,10 +125,12 @@ model ActivityParticipant {
   @@id([userId, activityId])
 }
 
-// 8. Cel
 model Goal {
   id          Int      @id @default(autoincrement())
-  userId      String
+  
+  activityId  Int
+  activity    Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
   title       String
   description String?
   categoryId  Int?
@@ -136,12 +140,29 @@ model Goal {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category Interest? @relation(fields: [categoryId], references: [id])
-  tasks    Task[]
+  category    Interest? @relation(fields: [categoryId], references: [id])
+  tasks       Task[]
+  
+  progress    Progress[]
 }
 
-// 9. Zadanie
+model Progress {
+  id          String   @id @default(cuid())
+  userId      String
+  goalId      Int
+  
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, goalId])
+  @@index([userId])
+  @@index([goalId])
+}
+
 model Task {
   id        Int      @id @default(autoincrement())
   goalId    Int
@@ -156,7 +177,6 @@ model Task {
   proofs TaskProof[]
 }
 
-// 10. Dowód Zadania
 model TaskProof {
   id         Int      @id @default(autoincrement())
   taskId     Int

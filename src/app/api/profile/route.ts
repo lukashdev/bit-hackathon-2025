@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -25,8 +24,16 @@ export async function GET(request: Request) {
         tasks: {
             orderBy: { updatedAt: 'desc' }
         },
-        goals: {
-          where: { isActive: true },
+        activities: {
+            include: {
+                activity: {
+                    include: {
+                        goals: {
+                            where: { isActive: true }
+                        }
+                    }
+                }
+            }
         },
         taskProofs: {
             orderBy: { createdAt: 'desc' },
@@ -45,7 +52,14 @@ export async function GET(request: Request) {
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     // Calculate streak
-    // Simple logic: Consecutive days with at least one COMPLETED task, ending today or yesterday.
+    // Using the new 'streak' field from DB if available/updated, 
+    // OR fallback to calculation logic (keeping existing logic for robustness if field isn't updated elsewhere)
+    // For now, let's keep the calculation logic as the primary source of truth based on tasks
+    // or just use user.streak if you implement a background job to update it. 
+    // Let's stick to calculation for consistency with previous code, but we could assume `user.streak` is managed.
+    // Since there's no logic visible that updates `user.streak` in other endpoints yet (except maybe daily jobs not shown),
+    // I will rely on the dynamic calculation for now, or simply return user.streak if the DB is the source of truth.
+    // Let's use the calculated streak as before for accuracy based on tasks.
     let streak = 0;
     const completedTaskDates = user.tasks
       .filter((t) => t.status === "COMPLETED")
@@ -78,6 +92,9 @@ export async function GET(request: Request) {
         }
     }
 
+    // Collect all active goals from user's activities
+    const activeGoals = user.activities.flatMap(a => a.activity.goals);
+
     // Last activity
     let lastActivity = user.updatedAt;
     if (user.tasks.length > 0) {
@@ -92,14 +109,14 @@ export async function GET(request: Request) {
     const response = {
       nick: user.name,
       email: user.email,
-      streak: streak,
+      streak: streak, // Or user.streak if you prefer DB value
       stats: {
         totalTasks,
         completedTasks,
         progress: Math.round(progress),
       },
-      activeGoals: user.goals, // Returns full goal objects
-      activeGoalsCount: user.goals.length,
+      activeGoals: activeGoals,
+      activeGoalsCount: activeGoals.length,
       registrationDate: user.createdAt,
       lastActivity: lastActivity,
       interests: user.interests.map((ui) => ui.interest.name),

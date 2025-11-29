@@ -75,7 +75,7 @@ export default function Login() {
                             {errors.password && <Text color="red.500" fontSize="sm">{errors.password.message}</Text>}
                         </Field.Root>
                         
-                        <Button type="submit" alignSelf="flex-start" loading={isSubmitting}>
+                        <Button type="submit" w={"100%"} loading={isSubmitting}>
                             Zaloguj się
                         </Button>
                     </VStack>

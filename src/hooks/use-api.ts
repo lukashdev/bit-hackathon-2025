@@ -20,7 +20,7 @@ export interface UserProfile {
 
 export interface Goal {
   id: number;
-  userId: string;
+  activityId: number;
   title: string;
   description?: string;
   categoryId?: number;
@@ -30,6 +30,7 @@ export interface Goal {
   createdAt: string;
   updatedAt: string;
   tasks?: Task[];
+  progress?: { isCompleted: boolean }[];
 }
 
 export interface Task {
@@ -67,6 +68,16 @@ export interface Activity {
   createdAt: string;
   updatedAt: string;
   participants?: ActivityParticipant[];
+  goals?: Goal[];
+}
+
+export interface RadarUser {
+  id: string;
+  name: string;
+  image?: string | null;
+  isOnline: boolean;
+  commonInterestsCount: number;
+  interests: string[];
 }
 
 // --- Hooks ---
@@ -84,11 +95,12 @@ export function useProfile() {
 }
 
 // Goals
-export function useGoals() {
+export function useGoals(activityId?: number) {
   return useQuery<Goal[]>({
-    queryKey: ["goals"],
+    queryKey: ["goals", activityId],
     queryFn: async () => {
-      const res = await fetch("/api/goals");
+      const url = activityId ? `/api/goals?activityId=${activityId}` : "/api/goals";
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch goals");
       return res.json();
     },
@@ -98,7 +110,7 @@ export function useGoals() {
 export function useCreateGoal() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (newGoal: { title: string; description?: string; startDate: string; endDate: string; categoryId?: number }) => {
+    mutationFn: async (newGoal: { activityId: number; title: string; description?: string; startDate: string; endDate: string; categoryId?: number }) => {
       const res = await fetch("/api/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -108,6 +120,39 @@ export function useCreateGoal() {
       return res.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["goals"] });
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+  });
+}
+
+// Goal Progress
+export function useGoalProgress(goalId: number) {
+  return useQuery<{ isCompleted: boolean }>({
+    queryKey: ["goalProgress", goalId],
+    queryFn: async () => {
+      const res = await fetch(`/api/goals/${goalId}/progress`);
+      if (!res.ok) throw new Error("Failed to fetch goal progress");
+      return res.json();
+    },
+  });
+}
+
+export function useUpdateGoalProgress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ goalId, isCompleted }: { goalId: number; isCompleted: boolean }) => {
+      const res = await fetch(`/api/goals/${goalId}/progress`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isCompleted }),
+      });
+      if (!res.ok) throw new Error("Failed to update goal progress");
+      return res.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["goalProgress", variables.goalId] });
       queryClient.invalidateQueries({ queryKey: ["goals"] });
       queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
@@ -209,6 +254,39 @@ export function useCreateActivity() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+}
+
+export function useInviteUser() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: async ({ activityId, email }: { activityId: number, email: string }) => {
+            const res = await fetch(`/api/activities/${activityId}/invite`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            });
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || "Failed to invite user");
+            }
+            return res.json();
+        },
+        onSuccess: () => {
+             queryClient.invalidateQueries({ queryKey: ["activities"] });
+        }
+    })
+}
+
+// Radar
+export function useRadar() {
+  return useQuery<RadarUser[]>({
+    queryKey: ["radar"],
+    queryFn: async () => {
+      const res = await fetch("/api/radar");
+      if (!res.ok) throw new Error("Failed to fetch radar matches");
+      return res.json();
     },
   });
 }

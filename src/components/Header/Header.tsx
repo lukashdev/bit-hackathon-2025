@@ -1,9 +1,16 @@
 "use client"
 import { Box, Button, Container, HStack, Link, Text } from "@chakra-ui/react";
 import { useSession, signOut } from "../../lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function Header(){
     const session = useSession();
+    const router = useRouter()
+
+    const signOutHandler = () => {
+        signOut();
+        router.push("/");
+    }
     
     return (
         <Box w={"100%"} boxShadow="md" top={"0"} bg={"gray"} zIndex={10} h={"50px"}>
@@ -17,7 +24,7 @@ export function Header(){
                     {session.data ? (
                         <HStack>
                             <Text>{session.data.user.name}</Text>
-                            <Button h={"25px"} onClick={() => signOut()}>Wyloguj</Button>
+                            <Button h={"25px"} onClick={signOutHandler}>Wyloguj</Button>
                         </HStack>
                     ) : (
                         <>

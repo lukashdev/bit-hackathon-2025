@@ -100,7 +100,7 @@ export default function Register() {
                             {errors.confirmPassword && <Text color="red.500" fontSize="sm">{errors.confirmPassword.message}</Text>}
                         </Field.Root>
                         
-                        <Button type="submit" alignSelf="flex-start" loading={isSubmitting}>
+                        <Button type="submit" w={"100%"} loading={isSubmitting}>
                             Zarejestruj się
                         </Button>
                     </VStack>
