@@ -34,7 +34,13 @@ export async function GET(request: Request) {
                 }
             }
         },
-        goals: true, // Dołącz cele aktywności
+        goals: {
+            include: {
+                progress: {
+                    where: { userId: session.user.id }
+                }
+            }
+        }, // Dołącz cele aktywności z progresem użytkownika
       },
       orderBy: {
         createdAt: 'desc'

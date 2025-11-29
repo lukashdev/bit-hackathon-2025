@@ -9,6 +9,7 @@ import { themeSystem } from "@/styles/theme"
 import { Toaster } from "./toaster"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState } from "react"
+import { AccessibilityProvider } from "./accessibility-provider"
 
 export function Provider(props: ColorModeProviderProps) {
   const [queryClient] = useState(() => new QueryClient())
@@ -16,8 +17,10 @@ export function Provider(props: ColorModeProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={themeSystem}>
-        <ColorModeProvider {...props} />
-        <Toaster />
+        <AccessibilityProvider>
+            <ColorModeProvider {...props} />
+            <Toaster />
+        </AccessibilityProvider>
       </ChakraProvider>
     </QueryClientProvider>
   )

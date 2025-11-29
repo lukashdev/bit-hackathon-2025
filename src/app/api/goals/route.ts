@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { Prisma } from "@prisma/client";
 
 // GET: Pobierz cele (wymagane activityId lub pobranie celów ze wszystkich aktywności użytkownika)
 export async function GET(request: Request) {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const activityId = searchParams.get("activityId");
 
-    let whereClause: any = {
+    const whereClause: Prisma.GoalWhereInput = {
       isActive: true,
     };
 

@@ -24,13 +24,11 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  interests     UserInterest[]
+  interests     Interest[]
   activities    ActivityParticipant[]
   
   progress      Progress[]
-
-  tasks         Task[]
-  taskProofs    TaskProof[]
+  proofs        Proof[]
 
   @@unique([email])
   @@map("user")
@@ -88,18 +86,8 @@ model Interest {
   id    Int            @id @default(autoincrement())
   name  String         @unique
   icon  String?
-  users UserInterest[]
+  users User[]
   goals Goal[]
-}
-
-model UserInterest {
-  userId     String
-  interestId Int
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  interest Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
-
-  @@id([userId, interestId])
 }
 
 model Activity {
@@ -141,9 +129,9 @@ model Goal {
   updatedAt   DateTime @updatedAt
 
   category    Interest? @relation(fields: [categoryId], references: [id])
-  tasks       Task[]
   
   progress    Progress[]
+  proofs      Proof[]
 }
 
 model Progress {
@@ -163,27 +151,13 @@ model Progress {
   @@index([goalId])
 }
 
-model Task {
-  id        Int      @id @default(autoincrement())
-  goalId    Int
-  userId    String
-  dueDate   DateTime
-  status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  goal   Goal        @relation(fields: [goalId], references: [id], onDelete: Cascade)
-  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  proofs TaskProof[]
-}
-
-model TaskProof {
+model Proof {
   id         Int      @id @default(autoincrement())
-  taskId     Int
+  goalId     Int
   userId     String
   proofImage Bytes
   createdAt  DateTime @default(now())
 
-  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

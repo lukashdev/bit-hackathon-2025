@@ -16,29 +16,29 @@ export async function GET(request: Request) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: {
-        interests: {
-          include: {
-            interest: true,
-          },
-        },
-        tasks: {
-            orderBy: { updatedAt: 'desc' }
-        },
+        interests: true,
+        // Removed tasks relation
         activities: {
             include: {
                 activity: {
                     include: {
                         goals: {
-                            where: { isActive: true }
+                            where: { isActive: true },
+                            include: {
+                                progress: {
+                                    where: { userId: session.user.id }
+                                }
+                            }
                         }
                     }
                 }
             }
         },
-        taskProofs: {
+        proofs: { // Renamed from taskProofs
             orderBy: { createdAt: 'desc' },
             take: 1
-        }
+        },
+        progress: true // To calculate completed goals
       },
     });
 
@@ -46,42 +46,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Calculate stats
-    const totalTasks = user.tasks.length;
-    const completedTasks = user.tasks.filter((t) => t.status === "COMPLETED").length;
-    const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+    // Calculate stats based on GOALS now, not tasks
+    // We can look at 'progress' table for the user
+    const totalGoals = user.activities.reduce((acc, curr) => acc + curr.activity.goals.length, 0);
+    // Or better, distinct goals user has interacted with?
+    // Let's say total goals available to user = goals in their activities
+    
+    const completedGoals = user.progress.filter((p) => p.isCompleted).length;
+    // Note: totalGoals might be larger than progress entries if user hasn't started them.
+    
+    const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
 
     // Calculate streak
-    // Using the new 'streak' field from DB if available/updated, 
-    // OR fallback to calculation logic (keeping existing logic for robustness if field isn't updated elsewhere)
-    // For now, let's keep the calculation logic as the primary source of truth based on tasks
-    // or just use user.streak if you implement a background job to update it. 
-    // Let's stick to calculation for consistency with previous code, but we could assume `user.streak` is managed.
-    // Since there's no logic visible that updates `user.streak` in other endpoints yet (except maybe daily jobs not shown),
-    // I will rely on the dynamic calculation for now, or simply return user.streak if the DB is the source of truth.
-    // Let's use the calculated streak as before for accuracy based on tasks.
+    // Based on completedAt in progress
     let streak = 0;
-    const completedTaskDates = user.tasks
-      .filter((t) => t.status === "COMPLETED")
-      .map((t) => new Date(t.updatedAt).setHours(0, 0, 0, 0)) // Normalize to midnight
-      .sort((a, b) => b - a); // Newest first
+    const completedGoalDates = user.progress
+      .filter((p) => p.isCompleted && p.completedAt)
+      .map((p) => new Date(p.completedAt!).setHours(0, 0, 0, 0))
+      .sort((a, b) => b - a);
 
-    // Unique dates
-    const uniqueDates = [...new Set(completedTaskDates)];
+    const uniqueDates = [...new Set(completedGoalDates)];
 
     if (uniqueDates.length > 0) {
         const today = new Date().setHours(0,0,0,0);
         const yesterday = new Date(today - 86400000).setHours(0,0,0,0);
         
-        // Check if streak is active (last completion was today or yesterday)
         if (uniqueDates[0] === today || uniqueDates[0] === yesterday) {
             streak = 1;
             let currentDate = uniqueDates[0];
-            
             for (let i = 1; i < uniqueDates.length; i++) {
                 const prevDate = uniqueDates[i];
                 const diff = (currentDate - prevDate) / (1000 * 60 * 60 * 24);
-                
                 if (diff === 1) {
                     streak++;
                     currentDate = prevDate;
@@ -92,34 +87,39 @@ export async function GET(request: Request) {
         }
     }
 
-    // Collect all active goals from user's activities
+    // Collect active goals
     const activeGoals = user.activities.flatMap(a => a.activity.goals);
 
     // Last activity
     let lastActivity = user.updatedAt;
-    if (user.tasks.length > 0) {
-        const lastTaskTime = user.tasks[0].updatedAt;
-        if (lastTaskTime > lastActivity) lastActivity = lastTaskTime;
-    }
-    if (user.taskProofs.length > 0) {
-        const lastProofTime = user.taskProofs[0].createdAt;
+    // Check last proof
+    if (user.proofs.length > 0) {
+        const lastProofTime = user.proofs[0].createdAt;
         if (lastProofTime > lastActivity) lastActivity = lastProofTime;
+    }
+    // Check last completed goal
+    const lastCompleted = user.progress
+        .filter(p => p.isCompleted && p.completedAt)
+        .sort((a,b) => b.completedAt!.getTime() - a.completedAt!.getTime())[0];
+        
+    if (lastCompleted && lastCompleted.completedAt && lastCompleted.completedAt > lastActivity) {
+        lastActivity = lastCompleted.completedAt;
     }
 
     const response = {
       nick: user.name,
       email: user.email,
-      streak: streak, // Or user.streak if you prefer DB value
+      streak: streak,
       stats: {
-        totalTasks,
-        completedTasks,
-        progress: Math.round(progress),
+        totalTasks: totalGoals, // Renaming to generic 'tasks' for frontend compatibility or 'totalGoals'
+        completedTasks: completedGoals,
+        progress: Math.round(progressPercentage),
       },
       activeGoals: activeGoals,
       activeGoalsCount: activeGoals.length,
       registrationDate: user.createdAt,
       lastActivity: lastActivity,
-      interests: user.interests.map((ui) => ui.interest.name),
+      interests: user.interests.map((i) => i.name),
     };
 
     return NextResponse.json(response);

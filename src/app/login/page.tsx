@@ -1,14 +1,15 @@
 "use client"
 
 import { Header } from "@/components/Header/Header";
-import { Footer } from "@/components/Footer/Footer";
-import { VStack, Field, Input, Container, Button, Text } from "@chakra-ui/react";
+import { VStack, Box, Input, Container, Button, Text, Heading, Stack } from "@chakra-ui/react";
+import { Field } from "@/components/ui/field"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { toaster } from "@/components/ui/toaster";
+import { PasswordInput } from "@/components/ui/password-input"
 
 const loginSchema = z.object({
     email: z.string().email("Nieprawidłowy adres email"),
@@ -50,38 +51,71 @@ export default function Login() {
     };
 
     return (
-        <div>
+        <Box minH="100vh" display="flex" flexDirection="column">
             <Header />
-            <Container maxW={"md"} padding={"100px"}>
-                Login Page
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <VStack gap={"12px"} padding={"15px"} bg={"gray"} borderRadius={"0.5rem"} color="black">
-                        <Field.Root invalid={!!errors.email}>
-                            <Field.Label>Email</Field.Label>
-                            <Input 
-                                placeholder="me@example.com" 
-                                type="email" 
-                                {...register("email")} 
-                            />
-                            {errors.email && <Text color="red.500" fontSize="sm">{errors.email.message}</Text>}
-                        </Field.Root>
-                        <Field.Root invalid={!!errors.password}>
-                            <Field.Label>Hasło</Field.Label>
-                            <Input 
-                                placeholder="" 
-                                type="password" 
-                                {...register("password")} 
-                            />
-                            {errors.password && <Text color="red.500" fontSize="sm">{errors.password.message}</Text>}
-                        </Field.Root>
-                        
-                        <Button type="submit" w={"100%"} loading={isSubmitting}>
+            <Container maxW="md" flex="1" display="flex" alignItems="center" justifyContent="center" py={10}>
+                <Box 
+                    w="100%" 
+                    p={8} 
+                    border="brand" 
+                    borderRadius="xl" 
+                    bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
+                    backdropFilter="blur(10px)"
+                >
+                    <VStack gap={6} align="stretch">
+                        <Heading textAlign="center" size="xl" color="brand.mainText">
                             Zaloguj się
-                        </Button>
+                        </Heading>
+                        
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <VStack gap={4}>
+                                <Field label="Email" invalid={!!errors.email} errorText={errors.email?.message}>
+                                    <Input 
+                                        placeholder="twoj@email.com" 
+                                        type="email" 
+                                        variant="outline"
+                                        borderColor="brand.borderColor"
+                                        _focus={{ borderColor: "brand.accent", outline: "none" }}
+                                        {...register("email")} 
+                                    />
+                                </Field>
+
+                                <Field label="Hasło" invalid={!!errors.password} errorText={errors.password?.message}>
+                                    <PasswordInput 
+                                        placeholder="••••••••" 
+                                        borderColor="brand.borderColor"
+                                        _focus={{ borderColor: "brand.accent", outline: "none" }}
+                                        {...register("password")} 
+                                    />
+                                </Field>
+                                
+                                <Button 
+                                    type="submit" 
+                                    w="100%" 
+                                    loading={isSubmitting}
+                                    bg="brand.accent"
+                                    color="brand.buttonText"
+                                    _hover={{ bg: "brand.accent2" }}
+                                    mt={2}
+                                >
+                                    Zaloguj się
+                                </Button>
+                            </VStack>
+                        </form>
+                        
+                        <Text fontSize="sm" textAlign="center" color="brand.mainText">
+                            Nie masz jeszcze konta?{" "}
+                                                            <Button 
+                                                                variant="plain" 
+                                                                color="brand.accent" 
+                                                                onClick={() => router.push("/register")}
+                                                                fontSize="sm"
+                                                            >
+                                                                Zarejestruj się
+                                                            </Button>                        </Text>
                     </VStack>
-                </form>
+                </Box>
             </Container>
-            {/* <Footer></Footer> */}
-        </div>
+        </Box>
     );
 }

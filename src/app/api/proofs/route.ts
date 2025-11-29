@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
-// GET: Pobierz dowody dla zadania (wymaga taskId w query param)
+// GET: Pobierz dowody dla celu (wymaga goalId w query param)
 export async function GET(request: Request) {
   try {
     const session = await auth.api.getSession({
@@ -15,42 +15,60 @@ export async function GET(request: Request) {
       }
 
     const { searchParams } = new URL(request.url);
-    const taskId = searchParams.get("taskId");
+    const goalId = searchParams.get("goalId");
 
-    if (!taskId) {
-        return NextResponse.json({ error: "Missing taskId" }, { status: 400 });
+    if (!goalId) {
+        return NextResponse.json({ error: "Missing goalId" }, { status: 400 });
     }
 
-    // Sprawdź czy zadanie należy do usera (lub czy jest to publiczne zadanie w przyszłości)
-    const task = await prisma.task.findUnique({
-        where: { id: parseInt(taskId) },
+    // Check if user has access to the goal
+    const goal = await prisma.goal.findUnique({
+        where: { id: parseInt(goalId) },
+        include: { activity: { include: { participants: true } } }
     });
 
-    if (!task || task.userId !== session.user.id) {
-         return NextResponse.json({ error: "Task not found or access denied" }, { status: 403 });
+    if (!goal) {
+        return NextResponse.json({ error: "Goal not found" }, { status: 404 });
     }
 
-    const proofs = await prisma.taskProof.findMany({
-      where: { taskId: parseInt(taskId) },
-      select: {
-          id: true,
-          taskId: true,
-          createdAt: true,
-          // Nie pobieramy proofImage domyślnie, bo może być duży. 
-          // Zrobimy osobny endpoint do pobierania samej grafiki, 
-          // lub można zwrócić base64 jeśli pliki są małe.
-          // Tutaj dla uproszczenia zwrócę ID, a grafikę pobierzemy przez dedykowany URL.
-      } 
+    const isParticipant = goal.activity.participants.some(p => p.userId === session.user.id);
+    if (!isParticipant) {
+        return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
+
+    const proofs = await prisma.proof.findMany({
+      where: { goalId: parseInt(goalId) },
+      include: {
+          user: {
+              select: {
+                  id: true,
+                  name: true,
+                  image: true
+              }
+          }
+      },
+      orderBy: { createdAt: 'desc' },
+      // Note: We are not selecting proofImage here to keep response light. 
+      // A separate endpoint might be needed to serve the image content.
     });
 
-    return NextResponse.json(proofs);
+    // Transform response to avoid sending binary data directly if included by default in findMany (it's not unless selected, but good practice)
+    const safeProofs = proofs.map(proof => ({
+        id: proof.id,
+        goalId: proof.goalId,
+        userId: proof.userId,
+        createdAt: proof.createdAt,
+        user: proof.user
+    }));
+
+    return NextResponse.json(safeProofs);
   } catch (error) {
     console.error("Error fetching proofs:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
-// POST: Dodaj dowód (obrazek)
+// POST: Dodaj dowód (obrazek) do celu
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({
@@ -62,19 +80,25 @@ export async function POST(request: Request) {
       }
 
     const formData = await request.formData();
-    const taskId = formData.get("taskId");
+    const goalId = formData.get("goalId");
     const file = formData.get("file") as File;
 
-    if (!taskId || !file) {
-      return NextResponse.json({ error: "Missing taskId or file" }, { status: 400 });
+    if (!goalId || !file) {
+      return NextResponse.json({ error: "Missing goalId or file" }, { status: 400 });
     }
 
-    // Weryfikacja własności zadania
-    const task = await prisma.task.findUnique({
-        where: { id: parseInt(taskId.toString()) }
+    // Weryfikacja czy user ma dostęp do celu (jest w aktywności)
+    const goal = await prisma.goal.findUnique({
+        where: { id: parseInt(goalId.toString()) },
+        include: { activity: { include: { participants: true } } }
     });
 
-    if (!task || task.userId !== session.user.id) {
+    if (!goal) {
+         return NextResponse.json({ error: "Goal not found" }, { status: 404 });
+    }
+
+    const isParticipant = goal.activity.participants.some(p => p.userId === session.user.id);
+    if (!isParticipant) {
         return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -82,20 +106,19 @@ export async function POST(request: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const proof = await prisma.taskProof.create({
+    const proof = await prisma.proof.create({
       data: {
-        taskId: parseInt(taskId.toString()),
+        goalId: parseInt(goalId.toString()),
         userId: session.user.id,
         proofImage: buffer,
       },
-      // Nie zwracamy pełnego obiektu z Bytes w odpowiedzi JSON, żeby nie zapchać sieci
       select: {
           id: true,
-          taskId: true,
+          goalId: true,
           createdAt: true
       }
     });
-
+    
     return NextResponse.json(proof, { status: 201 });
   } catch (error) {
     console.error("Error creating proof:", error);

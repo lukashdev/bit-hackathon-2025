@@ -26,7 +26,7 @@ export async function GET(
         return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const proof = await prisma.taskProof.findUnique({
+    const proof = await prisma.proof.findUnique({
       where: { id: parseInt(id) },
       select: { proofImage: true, userId: true }
     });
@@ -42,7 +42,7 @@ export async function GET(
     // Zakładamy, że to np. JPEG/PNG. Jeśli nie przechowujesz MIME type, przeglądarka często sama zgadnie,
     // ale lepiej byłoby przechowywać typ w bazie. Tu zwrócimy jako application/octet-stream lub image/jpeg domyślnie.
     
-    return new NextResponse(proof.proofImage, {
+    return new NextResponse(new Blob([proof.proofImage as any]), {
       headers: {
         "Content-Type": "image/jpeg", // Można próbować detekcji lub dodać pole mimeType do bazy
         "Cache-Control": "public, max-age=31536000, immutable",
