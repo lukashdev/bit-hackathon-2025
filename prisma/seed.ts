@@ -18,14 +18,22 @@ async function main() {
 
   // Create Interests
   const interestsData = [
-    { name: 'Sport', icon: '🏃' },
-    { name: 'Muzyka', icon: '🎵' },
-    { name: 'Technologia', icon: '💻' },
-    { name: 'Sztuka', icon: '🎨' },
-    { name: 'Podróże', icon: '✈️' },
-    { name: 'Gotowanie', icon: '🍳' },
-    { name: 'Nauka', icon: '📚' },
-    { name: 'Gry', icon: '🎮' },
+    { name: 'Joga', icon: '🧘' }, // matydojogi
+    { name: 'Siłownia', icon: '💪' }, // hantle
+    { name: 'Muzyka', icon: '🎸' }, // gitara
+    { name: 'Literatura', icon: '📚' }, // ksiazki
+    { name: 'Podróże', icon: '✈️' }, // walizka
+    { name: 'Rywalizacja', icon: '🏆' }, // puchar
+    { name: 'Inwestowanie', icon: '💰' }, // zloto
+    { name: 'Łamigłówki', icon: '🧩' }, // kostkarubika
+    { name: 'Technologia', icon: '💻' }, // komputer
+    { name: 'Gotowanie', icon: '🍳' }, // jedzenie
+    { name: 'Kawa', icon: '☕' }, // kubek
+    { name: 'Ogrodnictwo', icon: '🌱' }, // roslina
+    { name: 'Produktywność', icon: '⏱️' }, // zegar
+    { name: 'Podcasty', icon: '🎧' }, // sluchawki
+    { name: 'Finanse', icon: '📈' }, // gielda
+    { name: 'Sztuki walki', icon: '🥊' }, // Rekawice
   ];
 
   const interests = [];

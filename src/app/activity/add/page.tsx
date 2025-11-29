@@ -97,8 +97,8 @@ export default function AddActivity() {
           p={8}
           border="brand"
           borderRadius="xl"
-          bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-          backdropFilter="blur(10px)"
+          bg="brand.glassBg"
+          backdropFilter="blur(5px)"
           mb={10}
         >
           <Heading size={"3xl"} mb={6}>
@@ -119,8 +119,8 @@ export default function AddActivity() {
               p={8}
               border="brand"
               borderRadius="xl"
-              bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-              backdropFilter="blur(10px)"
+              bg="brand.glassBg"
+              backdropFilter="blur(5px)"
             >
               <Stack gap={4}>
                 <Heading size="lg" mb={4}>Dane aktywności</Heading>
@@ -153,8 +153,8 @@ export default function AddActivity() {
               p={8}
               border="brand"
               borderRadius="xl"
-              bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-              backdropFilter="blur(10px)"
+              bg="brand.glassBg"
+              backdropFilter="blur(5px)"
             >
               <Flex justify="space-between" align="center" mb={6}>
                 <Heading size="lg">Cele (Goals)</Heading>
@@ -173,7 +173,7 @@ export default function AddActivity() {
                     key={field.id}
                     p={4}
                     borderWidth="1px"
-                    borderColor="whiteAlpha.300"
+                    borderColor="brand.borderColor"
                     borderRadius="md"
                     position="relative"
                   >
@@ -241,7 +241,7 @@ export default function AddActivity() {
                 ))}
                 
                 {fields.length === 0 && (
-                    <Box textAlign="center" color="gray.500" py={8}>
+                    <Box textAlign="center" color="brand.content" py={8}>
                         Brak zdefiniowanych celów. Kliknij &quot;Dodaj cel&quot;, aby rozpocząć.
                     </Box>
                 )}

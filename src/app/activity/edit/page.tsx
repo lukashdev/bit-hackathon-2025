@@ -13,20 +13,20 @@ import { useEffect, useState, Suspense } from "react";
 
 const goalSchema = z.object({
   id: z.number().optional(),
-  title: z.string().min(1, "Tytu≈Ç celu jest wymagany"),
+  title: z.string().min(1, "Tytu≥ celu jest wymagany"),
   description: z.string().optional().nullable(),
-  startDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Nieprawid≈Çowa data"),
-  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Nieprawid≈Çowa data"),
+  startDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Nieprawid≥owa data"),
+  endDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Nieprawid≥owa data"),
 }).refine((data) => {
     if (!data.startDate || !data.endDate) return true;
     return new Date(data.startDate) <= new Date(data.endDate);
 }, {
-  message: "Data zako≈Ñczenia musi byƒá p√≥≈∫niejsza ni≈º data rozpoczƒôcia",
+  message: "Data zakoÒczenia musi byÊ pÛüniejsza niø data rozpoczÍcia",
   path: ["endDate"],
 });
 
 const activitySchema = z.object({
-  name: z.string().min(1, "Nazwa aktywno≈õci jest wymagana"),
+  name: z.string().min(1, "Nazwa aktywnoúci jest wymagana"),
   description: z.string().optional().nullable(),
   goals: z.array(goalSchema).optional(),
 });
@@ -62,8 +62,8 @@ function EditActivityContent() {
   useEffect(() => {
     if (!activityId) {
         toaster.create({
-            title: "B≈ÇƒÖd",
-            description: "Brak ID aktywno≈õci.",
+            title: "B≥πd",
+            description: "Brak ID aktywnoúci.",
             type: "error",
         });
         setIsLoading(false);
@@ -72,7 +72,7 @@ function EditActivityContent() {
 
     const fetchActivity = async () => {
         try {
-            const response = await fetch(`/api/activities/${activityId}`);
+            const response = await fetch(\/api/activities/\\);
             if (!response.ok) {
                 throw new Error("Failed to fetch activity");
             }
@@ -93,8 +93,8 @@ function EditActivityContent() {
         } catch (error) {
             console.error(error);
             toaster.create({
-                title: "B≈ÇƒÖd",
-                description: "Nie uda≈Ço siƒô pobraƒá danych aktywno≈õci.",
+                title: "B≥πd",
+                description: "Nie uda≥o siÍ pobraÊ danych aktywnoúci.",
                 type: "error",
             });
         } finally {
@@ -109,7 +109,7 @@ function EditActivityContent() {
     if (!activityId) return;
 
     try {
-      const response = await fetch(`/api/activities/${activityId}`, {
+      const response = await fetch(\/api/activities/\\, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -123,7 +123,7 @@ function EditActivityContent() {
 
       toaster.create({
         title: "Sukces",
-        description: "Aktywno≈õƒá zosta≈Ça zaktualizowana pomy≈õlnie.",
+        description: "AktywnoúÊ zosta≥a zaktualizowana pomyúlnie.",
         type: "success",
       });
 
@@ -131,15 +131,15 @@ function EditActivityContent() {
     } catch (error) {
       console.error(error);
       toaster.create({
-        title: "B≈ÇƒÖd",
-        description: "WystƒÖpi≈Ç b≈ÇƒÖd podczas aktualizacji aktywno≈õci.",
+        title: "B≥πd",
+        description: "Wystπpi≥ b≥πd podczas aktualizacji aktywnoúci.",
         type: "error",
       });
     }
   };
 
   if (isLoading) {
-      return <Container maxW={"8xl"} padding={"30px 15px"}><Box>≈Åadowanie...</Box></Container>;
+      return <Container maxW={"8xl"} padding={"30px 15px"}><Box>£adowanie...</Box></Container>;
   }
 
   return (
@@ -156,15 +156,15 @@ function EditActivityContent() {
           p={8}
           border="brand"
           borderRadius="xl"
-          bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-          backdropFilter="blur(10px)"
+          bg="brand.glassBg"
+          backdropFilter="blur(5px)"
           mb={3}
         >
           <Heading size={"3xl"} mb={6}>
-            Edytor aktywno≈õci
+            Edytor aktywnoúci
           </Heading>
           <Box>
-            Zedytuj swojƒÖ aktywno≈õƒá i cele poni≈ºej.
+            Zedytuj swojπ aktywnoúÊ i cele poniøej.
           </Box>
         </Box>
         <Box
@@ -172,11 +172,11 @@ function EditActivityContent() {
           p={8}
           border="brand"
           borderRadius="xl"
-          bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-          backdropFilter="blur(10px)"
+          bg="brand.glassBg"
+          backdropFilter="blur(5px)"
           mb={10}
         >
-            Edytujesz obecnie aktywno≈õƒá &quot;Nazwa Aktywno≈õci&quot;.
+            Edytujesz obecnie aktywnoúÊ &quot;Nazwa Aktywnoúci&quot;.
         </Box>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -188,24 +188,24 @@ function EditActivityContent() {
               p={8}
               border="brand"
               borderRadius="xl"
-              bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-              backdropFilter="blur(10px)"
+              bg="brand.glassBg"
+              backdropFilter="blur(5px)"
             >
               <Stack gap={4}>
-                <Heading size="lg" mb={4}>Dane aktywno≈õci</Heading>
-                <Field label="Nazwa aktywno≈õci" invalid={!!errors.name} errorText={errors.name?.message}>
+                <Heading size="lg" mb={4}>Dane aktywnoúci</Heading>
+                <Field label="Nazwa aktywnoúci" invalid={!!errors.name} errorText={errors.name?.message}>
                   <Input
-                    placeholder="Pi≈Çka no≈ºna"
+                    placeholder="Pi≥ka noøna"
                     variant="outline"
                     borderColor="brand.borderColor"
                     _focus={{ borderColor: "brand.accent", outline: "none" }}
                     {...register("name")}
                   />
                 </Field>
-                <Field label="Opis aktywno≈õci" invalid={!!errors.description} errorText={errors.description?.message}>
+                <Field label="Opis aktywnoúci" invalid={!!errors.description} errorText={errors.description?.message}>
                   <Textarea
                     h="150px"
-                    placeholder="Opis aktywno≈õci..."
+                    placeholder="Opis aktywnoúci..."
                     variant="outline"
                     borderColor="brand.borderColor"
                     _focus={{ borderColor: "brand.accent", outline: "none" }}
@@ -222,8 +222,8 @@ function EditActivityContent() {
               p={8}
               border="brand"
               borderRadius="xl"
-              bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-              backdropFilter="blur(10px)"
+              bg="brand.glassBg"
+              backdropFilter="blur(5px)"
             >
               <Flex justify="space-between" align="center" mb={6}>
                 <Heading size="lg">Cele (Goals)</Heading>
@@ -242,14 +242,14 @@ function EditActivityContent() {
                     key={field.id}
                     p={4}
                     borderWidth="1px"
-                    borderColor="whiteAlpha.300"
+                    borderColor="brand.borderColor"
                     borderRadius="md"
                     position="relative"
                   >
                     <Flex justify="space-between" mb={4}>
                         <Heading size="sm">Cel #{index + 1}</Heading>
                         <IconButton
-                            aria-label="Usu≈Ñ cel"
+                            aria-label="UsuÒ cel"
                             size="xs"
                             colorPalette="red"
                             variant="ghost"
@@ -261,13 +261,13 @@ function EditActivityContent() {
                     
                     <Stack gap={4}>
                       <Field
-                        label="Tytu≈Ç celu"
+                        label="Tytu≥ celu"
                         invalid={!!errors.goals?.[index]?.title}
                         errorText={errors.goals?.[index]?.title?.message}
                       >
                         <Input
                           placeholder="Np. Przebiec 10km"
-                          {...register(`goals.${index}.title`)}
+                          {...register(\goals.\.title\)}
                         />
                       </Field>
 
@@ -277,31 +277,31 @@ function EditActivityContent() {
                         errorText={errors.goals?.[index]?.description?.message}
                       >
                         <Textarea
-                          placeholder="Szczeg√≥≈Çy celu..."
-                          {...register(`goals.${index}.description`)}
+                          placeholder="SzczegÛ≥y celu..."
+                          {...register(\goals.\.description\)}
                         />
                       </Field>
 
                       <Flex gap={4} direction={{ base: "column", md: "row" }}>
                         <Field
-                          label="Data rozpoczƒôcia"
+                          label="Data rozpoczÍcia"
                           invalid={!!errors.goals?.[index]?.startDate}
                           errorText={errors.goals?.[index]?.startDate?.message}
                         >
                           <Input
                             type="date"
-                            {...register(`goals.${index}.startDate`)}
+                            {...register(\goals.\.startDate\)}
                           />
                         </Field>
 
                         <Field
-                          label="Data zako≈Ñczenia"
+                          label="Data zakoÒczenia"
                           invalid={!!errors.goals?.[index]?.endDate}
                           errorText={errors.goals?.[index]?.endDate?.message}
                         >
                           <Input
                             type="date"
-                            {...register(`goals.${index}.endDate`)}
+                            {...register(\goals.\.endDate\)}
                           />
                         </Field>
                       </Flex>
@@ -310,8 +310,8 @@ function EditActivityContent() {
                 ))}
                 
                 {fields.length === 0 && (
-                    <Box textAlign="center" color="gray.500" py={8}>
-                        Brak zdefiniowanych cel√≥w. Kliknij &quot;Dodaj cel&quot;, aby rozpoczƒÖƒá.
+                    <Box textAlign="center" color="brand.content" py={8}>
+                        Brak zdefiniowanych celÛw. Kliknij &quot;Dodaj cel&quot;, aby rozpoczπÊ.
                     </Box>
                 )}
               </Stack>
@@ -328,7 +328,7 @@ function EditActivityContent() {
                 px={10}
                 loading={isSubmitting}
               >
-                Zapisz aktywno≈õƒá i cele
+                Zapisz aktywnoúÊ i cele
               </Button>
           </Box>
         </form>

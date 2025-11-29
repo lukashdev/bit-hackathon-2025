@@ -66,8 +66,8 @@ export default function Register() {
                     p={8} 
                     border="brand" 
                     borderRadius="xl" 
-                    bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
-                    backdropFilter="blur(10px)"
+                    bg="brand.glassBg"
+                    backdropFilter="blur(5px)"
                 >
                     <VStack gap={6} align="stretch">
                         <Heading textAlign="center" size="xl" color="brand.mainText">

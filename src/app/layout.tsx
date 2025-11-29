@@ -1,4 +1,5 @@
 import { Provider } from "@/components/ui/provider";
+import { InterestGuard } from "@/components/InterestGuard";
 import type { Metadata } from "next";
 import "@/styles/global.css";
 
@@ -13,9 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl"suppressHydrationWarning>
+    <html lang="pl" suppressHydrationWarning>
       <body>
-        <Provider>{children}</Provider>
+        <Provider>
+          <InterestGuard>
+            {children}
+          </InterestGuard>
+        </Provider>
       </body>
     </html>
   );

@@ -22,6 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { LuClock, LuMail } from "react-icons/lu";
 import { useProfile, useActivities } from "@/hooks/use-api";
+import Link from "next/link";
 
 export default function Profile() {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
@@ -127,7 +128,7 @@ export default function Profile() {
 
               <Box>
                 <Text fontWeight="semibold" mb={3} color="brand.mainText">
-                  Zainteresowania
+                  Zainteresowania <Link href="/interests" style={{ fontSize: '14px', marginLeft: '8px', color: '#3182CE' }}>(Edytuj)</Link>
                 </Text>
                 <HStack wrap="wrap" gap={2}>
                   {profile.interests.map((interest, index) => (
