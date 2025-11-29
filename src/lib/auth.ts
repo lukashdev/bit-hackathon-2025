@@ -11,4 +11,7 @@ export const auth = betterAuth({
     }),
     appName: "bit-hackathon-2025",
     plugins: [nextCookies()],
+    emailAndPassword: {
+        enabled: true,
+    }
 });

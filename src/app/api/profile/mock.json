@@ -1,0 +1,44 @@
+{
+  "nick": "JanKowalski",
+  "email": "jan.kowalski@example.com",
+  "streak": 5,
+  "stats": {
+    "totalTasks": 20,
+    "completedTasks": 15,
+    "progress": 75
+  },
+  "activeGoals": [
+    {
+      "id": 1,
+      "userId": "user-123",
+      "title": "Nauka gry na gitarze",
+      "description": "Opanowanie podstawowych akordów i jednej piosenki",
+      "categoryId": 2,
+      "startDate": "2025-11-01T10:00:00.000Z",
+      "endDate": "2025-12-31T18:00:00.000Z",
+      "isActive": true,
+      "createdAt": "2025-11-01T09:00:00.000Z",
+      "updatedAt": "2025-11-28T14:30:00.000Z"
+    },
+    {
+      "id": 3,
+      "userId": "user-123",
+      "title": "Regularne bieganie",
+      "description": "Bieganie 3 razy w tygodniu po 5km",
+      "categoryId": 1,
+      "startDate": "2025-11-15T07:00:00.000Z",
+      "endDate": "2026-01-15T07:00:00.000Z",
+      "isActive": true,
+      "createdAt": "2025-11-15T06:45:00.000Z",
+      "updatedAt": "2025-11-29T08:15:00.000Z"
+    }
+  ],
+  "activeGoalsCount": 2,
+  "registrationDate": "2025-10-15T12:00:00.000Z",
+  "lastActivity": "2025-11-29T08:15:00.000Z",
+  "interests": [
+    "Sport",
+    "Muzyka",
+    "Programowanie"
+  ]
+}

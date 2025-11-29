@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     }
 
     const goals = await prisma.goal.findMany({
-      where: { userId: Number(session.user.id) },
+      where: { userId: session.user.id },
       include: { tasks: true }, // Opcjonalnie dołącz zadania
       orderBy: { createdAt: "desc" },
     });
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
 
     const goal = await prisma.goal.create({
       data: {
-        userId: Number(session.user.id),
+        userId: session.user.id,
         title,
         description,
         startDate: new Date(startDate),

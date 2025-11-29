@@ -57,13 +57,13 @@ export async function POST(request: Request) {
       where: { id: parseInt(goalId) },
     });
 
-    if (!goal || goal.userId !== Number(session.user.id)) {
+    if (!goal || goal.userId !== session.user.id) {
         return NextResponse.json({ error: "Goal not found or access denied" }, { status: 403 });
     }
 
     const task = await prisma.task.create({
       data: {
-        userId: Number(session.user.id),
+        userId: session.user.id,
         goalId: parseInt(goalId),
         dueDate: new Date(dueDate),
         status: status || "PENDING",
