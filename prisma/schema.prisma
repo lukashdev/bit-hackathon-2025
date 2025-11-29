@@ -83,11 +83,12 @@ model Verification {
 }
 
 model Interest {
-  id    Int            @id @default(autoincrement())
-  name  String         @unique
-  icon  String?
-  users User[]
-  goals Goal[]
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
+  icon       String?
+  users      User[]
+  goals      Goal[]
+  activities Activity[]
 }
 
 model Activity {
@@ -99,6 +100,7 @@ model Activity {
 
   participants ActivityParticipant[]
   goals        Goal[]
+  interests    Interest[]
 }
 
 model ActivityParticipant {

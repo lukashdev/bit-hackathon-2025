@@ -12,6 +12,11 @@ const config = defineConfig({
   globalCss: {
     "html, body": {
       bg: "brand.background",
+      backgroundImage: {
+        base: "radial-gradient(circle at 10% 20%, rgba(150, 173, 206, 0.2) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(98, 113, 135, 0.2) 0%, transparent 40%)",
+        _dark: "radial-gradient(circle at 10% 20%, rgba(66, 86, 117, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(45, 55, 72, 0.15) 0%, transparent 40%)",
+      },
+      backgroundAttachment: "fixed",
       color: "brand.mainText",
     },
   },
@@ -82,6 +87,30 @@ const config = defineConfig({
               _highContrast: "#000000",
               _highContrastDark: "#FFFFFF"
             } 
+          },
+          glassBg: {
+            value: {
+              base: "rgba(255, 255, 255, 0.2)",
+              _dark: "rgba(255, 255, 255, 0.05)",
+              _highContrast: "transparent",
+              _highContrastDark: "transparent"
+            }
+          },
+          glassBgInner: {
+            value: {
+              base: "rgba(255, 255, 255, 0.1)",
+              _dark: "rgba(255, 255, 255, 0.03)",
+              _highContrast: "transparent",
+              _highContrastDark: "transparent"
+            }
+          },
+          glassBgInnerHover: {
+            value: {
+              base: "rgba(255, 255, 255, 0.15)",
+              _dark: "rgba(255, 255, 255, 0.06)",
+              _highContrast: "rgba(0, 0, 0, 0.1)",
+              _highContrastDark: "rgba(255, 255, 255, 0.1)"
+            }
           },
         },
       },
