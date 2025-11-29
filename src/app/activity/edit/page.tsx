@@ -29,7 +29,7 @@ const activitySchema = z.object({
 
 type ActivityFormValues = z.infer<typeof activitySchema>;
 
-export default function AddActivity() {
+export default function EditActivity() {
   const {
     register,
     control,
@@ -70,15 +70,25 @@ export default function AddActivity() {
           borderRadius="xl"
           bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
           backdropFilter="blur(10px)"
-          mb={10}
+          mb={3}
         >
           <Heading size={"3xl"} mb={6}>
-            Kreator aktywności
+            Edytor aktywności
           </Heading>
           <Box>
-            Wyznacz jasny cel i obierz konkretny kierunek działania. Cel musi być
-            jasny i jednoznaczny. Mierz wysoko i przekraczaj własne granice.
+            Zedytuj swoją aktywność i cele poniżej.
           </Box>
+        </Box>
+        <Box
+          w="100%"
+          p={8}
+          border="brand"
+          borderRadius="xl"
+          bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }}
+          backdropFilter="blur(10px)"
+          mb={10}
+        >
+            Edytujesz obecnie aktywność &quot;Nazwa Aktywności&quot;.
         </Box>
 
         <form onSubmit={handleSubmit(onSubmit)}>
