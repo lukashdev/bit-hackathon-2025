@@ -1,19 +1,61 @@
 "use client"
-import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton } from "@chakra-ui/react";
+import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton, Popover } from "@chakra-ui/react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { AccessibilityControls } from "@/components/ui/accessibility-controls";
 import Link from "next/link";
-import { LuLogOut, LuUser } from "react-icons/lu";
+import { LuLogOut, LuUser, LuBell, LuPlus } from "react-icons/lu";
+import { useEffect, useState } from "react";
+import { toaster } from "@/components/ui/toaster";
+
+interface Invitation {
+    id: number
+    sender: { name: string }
+    activity: { name: string }
+}
 
 export function Header() {
     const session = useSession();
     const router = useRouter()
+    const [invitations, setInvitations] = useState<Invitation[]>([])
 
     const signOutHandler = async () => {
         await signOut();
         router.push("/");
+    }
+
+    const fetchInvitations = async () => {
+        if (!session.data) return
+        try {
+            const res = await fetch("/api/invitations")
+            if (res.ok) {
+                const data = await res.json()
+                setInvitations(data)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchInvitations()
+    }, [session.data])
+
+    const handleRespond = async (id: number, action: "accept" | "reject") => {
+        try {
+            const res = await fetch(`/api/invitations/${id}/respond`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action })
+            })
+            if (res.ok) {
+                toaster.create({ title: "Sukces", description: action === "accept" ? "Zaakceptowano zaproszenie" : "Odrzucono zaproszenie", type: "success" })
+                fetchInvitations()
+            }
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
@@ -63,6 +105,48 @@ export function Header() {
                             </HStack>
                         ) : session.data ? (
                             <HStack gap={4}>
+                                <Link href="/activity/add">
+                                    <Button variant="ghost" size="sm" title="Utwórz aktywność">
+                                        <LuPlus />
+                                    </Button>
+                                </Link>
+
+                                <Popover.Root positioning={{ placement: "bottom-end", gutter: 10 }}>
+                                    <Popover.Trigger asChild>
+                                        <Button variant="ghost" size="sm" position="relative">
+                                            <LuBell />
+                                            {invitations.length > 0 && (
+                                                <Box position="absolute" top="0" right="0" w="8px" h="8px" bg="red.500" borderRadius="full" />
+                                            )}
+                                        </Button>
+                                    </Popover.Trigger>
+                                    <Popover.Positioner>
+                                        <Popover.Content width="300px">
+                                            <Popover.Arrow />
+                                            <Popover.Body>
+                                                <Heading size="sm" mb={2}>Zaproszenia</Heading>
+                                                {invitations.length === 0 ? (
+                                                    <Text fontSize="sm" color="gray.500">Brak nowych zaproszeń</Text>
+                                                ) : (
+                                                    <Flex direction="column" gap={2}>
+                                                        {invitations.map(inv => (
+                                                            <Box key={inv.id} p={2} borderWidth="1px" borderRadius="md">
+                                                                <Text fontSize="sm">
+                                                                    <Text as="span" fontWeight="bold">{inv.sender.name}</Text> zaprasza do <Text as="span" fontWeight="bold">{inv.activity.name}</Text>
+                                                                </Text>
+                                                                <HStack mt={2} justify="flex-end">
+                                                                    <Button size="xs" colorPalette="green" onClick={() => handleRespond(inv.id, "accept")}>Akceptuj</Button>
+                                                                    <Button size="xs" colorPalette="red" variant="ghost" onClick={() => handleRespond(inv.id, "reject")}>Odrzuć</Button>
+                                                                </HStack>
+                                                            </Box>
+                                                        ))}
+                                                    </Flex>
+                                                )}
+                                            </Popover.Body>
+                                        </Popover.Content>
+                                    </Popover.Positioner>
+                                </Popover.Root>
+
                                 <Link href="/profile">
                                     <Button variant="ghost" size="sm" gap={2} color="brand.mainText">
                                         <LuUser />

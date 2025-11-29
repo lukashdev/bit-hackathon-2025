@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // GET: Pobierz aktywności użytkownika
 export async function GET(request: Request) {
@@ -69,10 +70,75 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, description, interestIds, goals } = body;
+    const { name, description, goals } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+
+    // AI Interest Selection Logic
+    let selectedInterestIds: number[] = [];
+    
+    try {
+        // 1. Fetch user interests
+        const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            include: { interests: true }
+        });
+        const userInterests = user?.interests.map(i => i.name).join(", ") || "Brak";
+
+        // 2. Fetch all available interests
+        const allInterests = await prisma.interest.findMany();
+        const allInterestsNames = allInterests.map(i => i.name).join(", ");
+
+        // 3. Call Gemini
+        const apiKey = process.env.GOOGLE_AI_API_KEY;
+        if (apiKey) {
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
+
+            const prompt = `
+              Jesteś asystentem AI, który kategoryzuje aktywności.
+              
+              Zadanie: Wybierz najbardziej pasujące zainteresowania dla nowej aktywności z podanej listy.
+              
+              Kontekst:
+              - Nazwa aktywności: "${name}"
+              - Opis aktywności: "${description || ''}"
+              - Zainteresowania twórcy: "${userInterests}"
+              
+              Lista dostępnych zainteresowań: ${allInterestsNames}
+              
+              Instrukcje:
+              1. Przeanalizuj nazwę i opis aktywności, aby zrozumieć jej temat.
+              2. Rozważ zainteresowania twórcy jako wskazówkę, ale priorytet ma treść aktywności.
+              3. Wybierz od 1 do 3 zainteresowań z "Lista dostępnych zainteresowań", które najlepiej pasują.
+              4. Zwróć TYLKO tablicę JSON z nazwami wybranych zainteresowań (np. ["Sport", "Muzyka"]).
+              5. Jeśli żadne zainteresowanie nie pasuje, zwróć pustą tablicę [].
+              6. NIE zwracaj żadnego formatowania markdown (np. \`\`\`json). Tylko czysty JSON.
+            `;
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            
+            // Clean up response
+            const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+            
+            try {
+                const selectedNames = JSON.parse(cleanedText);
+                if (Array.isArray(selectedNames)) {
+                    selectedInterestIds = allInterests
+                        .filter(i => selectedNames.includes(i.name))
+                        .map(i => i.id);
+                }
+            } catch (e) {
+                console.error("Failed to parse AI response:", text);
+            }
+        }
+    } catch (error) {
+        console.error("AI categorization error:", error);
+        // Continue without interests if AI fails
     }
 
     const activity = await prisma.$transaction(async (tx) => {
@@ -80,9 +146,9 @@ export async function POST(request: Request) {
         data: {
           name,
           description,
-          interests: interestIds && Array.isArray(interestIds) ? {
-            connect: interestIds.map((id: number) => ({ id }))
-          } : undefined
+          interests: {
+            connect: selectedInterestIds.map(id => ({ id }))
+          }
         },
       });
 

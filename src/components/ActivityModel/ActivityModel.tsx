@@ -8,7 +8,7 @@ import { Box, Button, IconButton, Text, HStack, Center, Spinner } from '@chakra-
 import { Check, RotateCcw, RotateCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toaster } from "@/components/ui/toaster"
-import { useProfile } from '@/hooks/use-api'
+import { useProfile, useUpdateInterests } from '@/hooks/use-api'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -107,9 +107,9 @@ const CameraController = ({ setControls }: { setControls: (controls: any) => voi
 export const ActivityModels = () => {
   const [selected, setSelected] = useState<string[]>([])
   const [controls, setControls] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { data: profile, isLoading: isProfileLoading } = useProfile()
+  const { mutateAsync: updateInterests, isPending: isUpdating } = useUpdateInterests()
   const rotateInterval = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -161,21 +161,10 @@ export const ActivityModels = () => {
   }
 
   const handleNext = async () => {
-      setIsLoading(true)
       try {
         const interests = selected.map(modelName => modelToInterest[modelName]).filter(Boolean)
         
-        const response = await fetch('/api/users/interests', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ interests }),
-        })
-
-        if (!response.ok) {
-            throw new Error('Failed to save interests')
-        }
+        await updateInterests(interests)
 
         toaster.create({
             title: "Zapisano zainteresowania",
@@ -190,8 +179,6 @@ export const ActivityModels = () => {
             description: "Nie udało się zapisać zainteresowań",
             type: "error",
         })
-      } finally {
-        setIsLoading(false)
       }
   }
 
@@ -259,7 +246,7 @@ export const ActivityModels = () => {
           <Box position="absolute" bottom={4} right={4}>
               <Button 
                 onClick={handleNext} 
-                loading={isLoading}
+                loading={isUpdating}
                 bg="brand.accent" 
                 color="brand.buttonText"
                 _hover={{ bg: "brand.accent2" }}

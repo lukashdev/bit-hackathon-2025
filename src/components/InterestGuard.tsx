@@ -5,13 +5,13 @@ import { useEffect, useRef } from "react"
 import { toaster } from "@/components/ui/toaster"
 
 export function InterestGuard({ children }: { children: React.ReactNode }) {
-    const { data: profile, isLoading, isError } = useProfile()
+    const { data: profile, isLoading, isError, isFetching } = useProfile()
     const pathname = usePathname()
     const router = useRouter()
     const hasNotified = useRef(false)
 
     useEffect(() => {
-        if (isLoading) return
+        if (isLoading || isFetching) return
         
         // Allow access to public pages
         const publicPaths = ['/login', '/register', '/']
@@ -36,7 +36,7 @@ export function InterestGuard({ children }: { children: React.ReactNode }) {
                 }
             }
         }
-    }, [profile, isLoading, pathname, router])
+    }, [profile, isLoading, isFetching, pathname, router])
 
     return <>{children}</>
 }

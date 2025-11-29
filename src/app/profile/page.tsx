@@ -18,9 +18,10 @@ import {
   Icon,
   Button,
   Spinner,
-  Center
+  Center,
+  SimpleGrid
 } from "@chakra-ui/react";
-import { LuClock, LuMail } from "react-icons/lu";
+import { LuClock, LuMail, LuPlus } from "react-icons/lu";
 import { useProfile, useActivities } from "@/hooks/use-api";
 import Link from "next/link";
 
@@ -126,6 +127,19 @@ export default function Profile() {
 
               <Separator borderColor="brand.borderColor" />
 
+              <SimpleGrid columns={2} gap={4} w="full">
+                  <Box textAlign="center" p={3} bg="brand.glassBgInner" borderRadius="md">
+                      <Text fontSize="2xl" fontWeight="bold" color="brand.accent">{profile.stats.completedTasks}</Text>
+                      <Text fontSize="xs" color="brand.content" textTransform="uppercase" letterSpacing="wider">Zaliczone cele</Text>
+                  </Box>
+                  <Box textAlign="center" p={3} bg="brand.glassBgInner" borderRadius="md">
+                      <Text fontSize="2xl" fontWeight="bold" color="brand.accent">{profile.stats.likesReceived}</Text>
+                      <Text fontSize="xs" color="brand.content" textTransform="uppercase" letterSpacing="wider">Polubienia</Text>
+                  </Box>
+              </SimpleGrid>
+
+              <Separator borderColor="brand.borderColor" />
+
               <Box>
                 <Text fontWeight="semibold" mb={3} color="brand.mainText">
                   Zainteresowania <Link href="/interests" style={{ fontSize: '14px', marginLeft: '8px', color: '#3182CE' }}>(Edytuj)</Link>
@@ -172,15 +186,20 @@ export default function Profile() {
 
             {/* Aktywności do których należysz */}
             <Card.Root w="100%" {...cardStyles}>
-              <Card.Header>
+              <Card.Header display="flex" justifyContent="space-between" alignItems="center">
                 <Heading size="lg" color="brand.mainText">Aktywności do których należysz</Heading>
+                <Link href="/activity/add">
+                    <Button size="sm" variant="ghost" title="Utwórz nową aktywność">
+                        <LuPlus /> Utwórz
+                    </Button>
+                </Link>
               </Card.Header>
               <Card.Body>
                 <Stack gap={3}>
                   {activities && activities.length > 0 ? (
                       activities.map((activity) => (
+                        <Link key={activity.id} href={`/activity/${activity.id}`}>
                           <Box
-                            key={activity.id}
                             bg="brand.glassBgInner"
                             p={4}
                             borderRadius="md"
@@ -192,6 +211,7 @@ export default function Profile() {
                               {activity.goals ? `${activity.goals.length} celów` : "Brak celów"}
                             </Text>
                           </Box>
+                        </Link>
                       ))
                   ) : (
                       <Text color="brand.content">Nie należysz do żadnych aktywności</Text>

@@ -2,13 +2,14 @@
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
 import { Field } from "@/components/ui/field";
-import { Container, Box, Input, Textarea, Heading, Button, Flex, Stack, IconButton } from "@chakra-ui/react";
+import { Container, Box, Input, Textarea, Heading, Button, Flex, Stack, IconButton, Text } from "@chakra-ui/react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Sparkles, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toaster } from "@/components/ui/toaster";
+import { useState } from "react";
 
 const goalSchema = z.object({
   title: z.string().min(1, "Tytuł celu jest wymagany"),
@@ -33,11 +34,14 @@ type ActivityFormValues = z.infer<typeof activitySchema>;
 
 export default function AddActivity() {
   const router = useRouter();
+  const [generating, setGenerating] = useState(false);
   const {
     register,
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
+    getValues,
+    setValue,
   } = useForm<ActivityFormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: {
@@ -51,6 +55,36 @@ export default function AddActivity() {
     control,
     name: "goals",
   });
+
+  const handleGenerateDescription = async () => {
+    const name = getValues("name");
+    if (!name) {
+        toaster.create({ title: "Błąd", description: "Wpisz nazwę aktywności, aby wygenerować opis.", type: "error" });
+        return;
+    }
+    
+    setGenerating(true);
+    try {
+        const response = await fetch("/api/gemini", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                prompt: `Napisz bardzo krótki i zwięzły opis (max 1-2 zdania) dla aktywności o nazwie: "${name}". Opis ma motywować do działania. Język polski.` 
+            })
+        });
+        
+        if (!response.ok) throw new Error("Failed to generate");
+        
+        const data = await response.json();
+        setValue("description", data.response);
+        toaster.create({ title: "Sukces", description: "Opis został wygenerowany.", type: "success" });
+    } catch (error) {
+        console.error(error);
+        toaster.create({ title: "Błąd", description: "Nie udało się wygenerować opisu.", type: "error" });
+    } finally {
+        setGenerating(false);
+    }
+  };
 
   const onSubmit = async (data: ActivityFormValues) => {
     try {
@@ -133,7 +167,21 @@ export default function AddActivity() {
                     {...register("name")}
                   />
                 </Field>
-                <Field label="Opis aktywności" invalid={!!errors.description} errorText={errors.description?.message}>
+                <Field label={
+                    <Flex align="center" gap={2}>
+                        Opis aktywności
+                        <Button 
+                            size="xs" 
+                            variant="ghost" 
+                            colorPalette="purple" 
+                            loading={generating} 
+                            onClick={handleGenerateDescription}
+                            title="Wygeneruj opis za pomocą AI"
+                        >
+                            <Sparkles size={14} /> Generuj z AI
+                        </Button>
+                    </Flex>
+                } invalid={!!errors.description} errorText={errors.description?.message}>
                   <Textarea
                     h="150px"
                     placeholder="Opis aktywności..."
@@ -143,6 +191,15 @@ export default function AddActivity() {
                     {...register("description")}
                   />
                 </Field>
+                
+                <Box p={3} bg="blue.50" borderRadius="md" fontSize="sm" color="blue.600" _dark={{ bg: "blue.900/30", color: "blue.200" }}>
+                    <Flex gap={2} align="start">
+                        <Box mt={0.5}><Info size={16} /></Box>
+                        <Text>
+                            Zainteresowania dla tej aktywności zostaną dobrane automatycznie przez AI na podstawie Twojego profilu, tytułu oraz opisu aktywności.
+                        </Text>
+                    </Flex>
+                </Box>
               </Stack>
             </Box>
 

@@ -62,16 +62,30 @@ export async function POST(
         return NextResponse.json({ error: "User is already a participant" }, { status: 409 });
     }
 
-    // 4. Dodaj użytkownika
-    const newParticipant = await prisma.activityParticipant.create({
-        data: {
-            userId: userToInvite.id,
+    // 4. Utwórz zaproszenie (zamiast dodawać bezpośrednio)
+    // Sprawdź czy już nie ma zaproszenia
+    const existingInvitation = await prisma.invitation.findFirst({
+        where: {
             activityId: parseInt(activityId),
-            role: "MEMBER"
+            receiverId: userToInvite.id,
+            status: "PENDING"
         }
     });
 
-    return NextResponse.json(newParticipant, { status: 201 });
+    if (existingInvitation) {
+        return NextResponse.json({ error: "Invitation already sent" }, { status: 409 });
+    }
+
+    const invitation = await prisma.invitation.create({
+        data: {
+            senderId: session.user.id,
+            receiverId: userToInvite.id,
+            activityId: parseInt(activityId),
+            status: "PENDING"
+        }
+    });
+
+    return NextResponse.json(invitation, { status: 201 });
 
   } catch (error) {
     console.error("Error inviting user:", error);
