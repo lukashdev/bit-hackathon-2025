@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 export interface UserProfile {
   nick: string;
   email: string;
+  image?: string | null;
   streak: number;
   stats: {
     totalTasks: number;
@@ -13,6 +14,7 @@ export interface UserProfile {
   };
   activeGoals: Goal[];
   activeGoalsCount: number;
+  lastCompletedGoal?: Goal | null;
   registrationDate: string;
   lastActivity: string;
   interests: string[];
@@ -80,6 +82,15 @@ export interface RadarUser {
   interests: string[];
 }
 
+export interface RadarActivity {
+  id: number;
+  name: string;
+  description?: string | null;
+  participantsCount: number;
+  commonInterestsCount: number;
+  interests: string[];
+}
+
 // --- Hooks ---
 
 // Profile
@@ -91,6 +102,18 @@ export function useProfile() {
       if (!res.ok) throw new Error("Failed to fetch profile");
       return res.json();
     },
+  });
+}
+
+export function useUserProfile(userId: string) {
+  return useQuery<UserProfile>({
+    queryKey: ["profile", userId],
+    queryFn: async () => {
+      const res = await fetch(`/api/users/${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch user profile");
+      return res.json();
+    },
+    enabled: !!userId,
   });
 }
 
@@ -229,11 +252,12 @@ export function useCreateProof() {
 }
 
 // Activities
-export function useActivities() {
+export function useActivities(userId?: string) {
   return useQuery<Activity[]>({
-    queryKey: ["activities"],
+    queryKey: ["activities", userId],
     queryFn: async () => {
-      const res = await fetch("/api/activities");
+      const url = userId ? `/api/activities?userId=${userId}` : "/api/activities";
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch activities");
       return res.json();
     },
@@ -243,7 +267,7 @@ export function useActivities() {
 export function useCreateActivity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: { name: string; description?: string }) => {
+    mutationFn: async (data: { name: string; description?: string; interestIds?: number[] }) => {
       const res = await fetch("/api/activities", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -286,6 +310,17 @@ export function useRadar() {
     queryFn: async () => {
       const res = await fetch("/api/radar");
       if (!res.ok) throw new Error("Failed to fetch radar matches");
+      return res.json();
+    },
+  });
+}
+
+export function useRadarActivity() {
+  return useQuery<RadarActivity[]>({
+    queryKey: ["radar-activity"],
+    queryFn: async () => {
+      const res = await fetch("/api/radar/activity");
+      if (!res.ok) throw new Error("Failed to fetch activity radar matches");
       return res.json();
     },
   });
