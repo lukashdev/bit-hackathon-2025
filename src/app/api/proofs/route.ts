@@ -26,7 +26,7 @@ export async function GET(request: Request) {
         where: { id: parseInt(taskId) },
     });
 
-    if (!task || task.userId !== Number(session.user.id)) {
+    if (!task || task.userId !== session.user.id) {
          return NextResponse.json({ error: "Task not found or access denied" }, { status: 403 });
     }
 
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
         where: { id: parseInt(taskId.toString()) }
     });
 
-    if (!task || task.userId !== Number(session.user.id)) {
+    if (!task || task.userId !== session.user.id) {
         return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     const proof = await prisma.taskProof.create({
       data: {
         taskId: parseInt(taskId.toString()),
-        userId: Number(session.user.id),
+        userId: session.user.id,
         proofImage: buffer,
       },
       // Nie zwracamy pełnego obiektu z Bytes w odpowiedzi JSON, żeby nie zapchać sieci

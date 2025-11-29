@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "name": "Grupa Biegowa",
+    "description": "Przygotowania do maratonu",
+    "createdAt": "2025-11-01T10:00:00.000Z",
+    "updatedAt": "2025-11-01T10:00:00.000Z",
+    "participants": [
+      {
+        "userId": "user-1",
+        "activityId": 1,
+        "joinedAt": "2025-11-01T10:00:00.000Z",
+        "role": "OWNER",
+        "user": {
+          "id": "user-1",
+          "name": "Jan Kowalski",
+          "image": null
+        }
+      }
+    ],
+    "goals": [
+      {
+        "id": 10,
+        "activityId": 1,
+        "title": "Przebiec 10km",
+        "description": "Trening wytrzymałościowy",
+        "startDate": "2025-11-05T00:00:00.000Z",
+        "endDate": "2025-12-05T00:00:00.000Z",
+        "isActive": true
+      }
+    ]
+  }
+]

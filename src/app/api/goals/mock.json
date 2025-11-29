@@ -1,0 +1,19 @@
+[
+  {
+    "id": 101,
+    "activityId": 5,
+    "title": "Nauczyć się Reacta",
+    "description": "Przerobić kurs podstawowy",
+    "startDate": "2025-12-01T00:00:00.000Z",
+    "endDate": "2025-12-31T00:00:00.000Z",
+    "isActive": true,
+    "progress": [
+      {
+        "id": "progress_1",
+        "userId": "user-current",
+        "goalId": 101,
+        "isCompleted": false
+      }
+    ]
+  }
+]

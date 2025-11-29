@@ -33,8 +33,12 @@ export async function GET(request: Request) {
                     }
                 }
             }
-        }
+        },
+        goals: true, // Dołącz cele aktywności
       },
+      orderBy: {
+        createdAt: 'desc'
+      }
     });
 
     return NextResponse.json(activities);
@@ -62,7 +66,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Transakcja: Utwórz aktywność ORAZ dodaj użytkownika jako uczestnika (OWNER)
     const activity = await prisma.$transaction(async (tx) => {
       const newActivity = await tx.activity.create({
         data: {
