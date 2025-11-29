@@ -3,7 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -13,11 +16,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: id },
       include: {
         interests: true,
-        // Removed tasks relation
         activities: {
             include: {
                 activity: {
@@ -26,7 +30,7 @@ export async function GET(request: Request) {
                             where: { isActive: true },
                             include: {
                                 progress: {
-                                    where: { userId: session.user.id }
+                                    where: { userId: id }
                                 }
                             }
                         }
@@ -34,7 +38,7 @@ export async function GET(request: Request) {
                 }
             }
         },
-        proofs: { // Renamed from taskProofs
+        proofs: {
             orderBy: { createdAt: 'desc' },
             take: 1
         },
@@ -42,7 +46,7 @@ export async function GET(request: Request) {
             include: {
                 goal: true
             }
-        } // To calculate completed goals
+        }
       },
     });
 
@@ -50,19 +54,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Calculate stats based on GOALS now, not tasks
-    // We can look at 'progress' table for the user
     const totalGoals = user.activities.reduce((acc, curr) => acc + curr.activity.goals.length, 0);
-    // Or better, distinct goals user has interacted with?
-    // Let's say total goals available to user = goals in their activities
     
     const completedGoals = user.progress.filter((p) => p.isCompleted).length;
-    // Note: totalGoals might be larger than progress entries if user hasn't started them.
     
     const progressPercentage = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
 
     // Calculate streak
-    // Based on completedAt in progress
     let streak = 0;
     const completedGoalDates = user.progress
       .filter((p) => p.isCompleted && p.completedAt)
@@ -116,7 +114,7 @@ export async function GET(request: Request) {
       image: user.image,
       streak: streak,
       stats: {
-        totalTasks: totalGoals, // Renaming to generic 'tasks' for frontend compatibility or 'totalGoals'
+        totalTasks: totalGoals,
         completedTasks: completedGoals,
         progress: Math.round(progressPercentage),
       },
@@ -130,7 +128,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching profile:", error);
+    console.error("Error fetching user profile:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -21,11 +21,15 @@ import {
   Center
 } from "@chakra-ui/react";
 import { LuClock, LuMail } from "react-icons/lu";
-import { useProfile, useActivities } from "@/hooks/use-api";
+import { useUserProfile, useActivities } from "@/hooks/use-api";
+import { useParams } from "next/navigation";
 
-export default function Profile() {
-  const { data: profile, isLoading: isProfileLoading } = useProfile();
-  const { data: activities, isLoading: isActivitiesLoading } = useActivities();
+export default function UserProfile() {
+  const params = useParams();
+  const userId = params.id as string;
+  
+  const { data: profile, isLoading: isProfileLoading } = useUserProfile(userId);
+  const { data: activities, isLoading: isActivitiesLoading } = useActivities(userId);
 
   const cardStyles = {
     bg: "brand.glassBg",
@@ -43,7 +47,11 @@ export default function Profile() {
       )
   }
 
-  if (!profile) return null;
+  if (!profile) return (
+      <Center h="100vh">
+          <Text>Użytkownik nie znaleziony</Text>
+      </Center>
+  );
 
   // Helper for time ago
   const timeAgo = (dateString: string) => {
@@ -93,7 +101,7 @@ export default function Profile() {
                 </Box>
                 <VStack align="flex-start" gap={0}>
                   <Heading size="2xl" color="brand.mainText">{profile.nick}</Heading>
-                  <Text color="brand.content">Użytkownik Premium</Text>
+                  <Text color="brand.content">Użytkownik</Text>
                 </VStack>
               </HStack>
             </Card.Header>
@@ -193,7 +201,7 @@ export default function Profile() {
                           </Box>
                       ))
                   ) : (
-                      <Text color="brand.content">Nie należysz do żadnych aktywności</Text>
+                      <Text color="brand.content">Nie należy do żadnych aktywności</Text>
                   )}
                 </Stack>
               </Card.Body>
@@ -218,21 +226,7 @@ export default function Profile() {
                             {profile.lastCompletedGoal.title}
                           </Heading>
                           <Text color="brand.content">Status: Zakończone</Text>
-                          <Text fontSize="sm" color="brand.content" paddingTop={"10px"}>
-                            Świetna robota. Teraz udokumentuj swoje osiągnięcie. Prześlij zdjęcie lub zrzut ekranu, aby partner mógł potwierdzić wykonanie zadania i odnotować Twój sukces.
-                          </Text>
                         </Box>
-                        <Button 
-                          mt={3} 
-                          bg="brand.accent" 
-                          color="brand.buttonText"
-                          _hover={{ bg: "brand.accent2" }}
-                          size="sm" 
-                          w="50%" 
-                          margin="auto"
-                        >
-                          Prześlij dowód
-                        </Button>
                     </>
                 ) : (
                     <Text color="brand.content">Brak zakończonych aktywności</Text>

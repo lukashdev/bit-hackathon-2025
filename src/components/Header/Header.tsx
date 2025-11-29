@@ -1,5 +1,5 @@
 "use client"
-import { Box, Button, Container, HStack, Text, Flex, Heading } from "@chakra-ui/react";
+import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton } from "@chakra-ui/react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { ColorModeButton } from "@/components/ui/color-mode";
@@ -23,8 +23,8 @@ export function Header() {
             position="sticky"
             top="0"
             zIndex={100}
-            bg={{ base: "rgba(255, 239, 234, 0.8)", _dark: "rgba(18, 18, 18, 0.8)" }}
-            backdropFilter="blur(12px)"
+            bg={{ base: "rgba(255, 239, 234, 0.3)", _dark: "rgba(18, 18, 18, 0.3)" }}
+            backdropFilter="blur(6px)"
             borderBottom="1px solid"
             borderColor="brand.borderColor"
             transition="background 0.2s"
@@ -44,10 +44,10 @@ export function Header() {
                                 justifyContent="center"
                                 transform="rotate(15deg)"
                             >
-                                <Text color="brand.mainText" fontWeight="bold" fontSize="lg">G</Text>
+                                <Text color="brand.mainText" fontWeight="bold" fontSize="lg">L</Text>
                             </Box>
                             <Heading size="lg" color="brand.mainText" fontWeight="bold" letterSpacing="tight">
-                                GlowUp
+                                LosersLogo
                             </Heading>
                         </HStack>
                     </Link>
@@ -56,7 +56,12 @@ export function Header() {
                         <AccessibilityControls />
                         <ColorModeButton />
                         
-                        {session.data ? (
+                        {session.isPending ? (
+                            <HStack gap={4}>
+                                <Skeleton width="120px" height="32px" />
+                                <Skeleton width="90px" height="32px" />
+                            </HStack>
+                        ) : session.data ? (
                             <HStack gap={4}>
                                 <Link href="/profile">
                                     <Button variant="ghost" size="sm" gap={2} color="brand.mainText">
