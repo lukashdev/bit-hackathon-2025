@@ -9,3 +9,146 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+// 1. Model Użytkownika
+model User {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relacje do autoryzacji
+  sessions      Session[]
+  accounts      Account[]
+  
+  // Relacje dla funkcjonalności
+  interests     UserInterest[]       // Co użytkownika interesuje
+  goals         Goal[]               // Zdefiniowane cele rozwojowe
+  activities    ActivityParticipant[] // Aktywności grupowe
+  tasks         Task[]               // Zadania do wykonania
+  proofs        TaskProof[]          // Dowody wykonania
+  
+  // Ciąg
+  streak        Int         @default(0) 
+
+  @@map("user")
+}
+
+// 2. Sesja
+model Session {
+  id        Int   @id @default(autoincrement())
+  expiresAt DateTime
+  token     String @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+// 3. Konto
+model Account {
+  id                    Int    @id @default(autoincrement())
+  accountId             String
+  providerId            String
+  userId                Int // Zmienione z String na Int, aby pasowało do User.id
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  
+  password              String? 
+
+  @@index([userId])
+  @@map("account")
+}
+
+// 4. Zainteresowania
+model Interest {
+  id        Int             @id @default(autoincrement())
+  name      String @unique
+  icon      String?
+  users     UserInterest[]
+  goals     Goal[]
+}
+
+// 5. Powiązanie Użytkownika z Zainteresowaniem
+model UserInterest {
+  userId     Int
+  interestId Int
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest   Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@id([userId, interestId])
+}
+
+// 6. Aktywność (Grupa/Wydarzenie)
+model Activity {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participants ActivityParticipant[]
+}
+
+// 7. Uczestnicy Aktywności (Tabela łącząca M-N)
+model ActivityParticipant {
+  userId     Int
+  activityId Int
+  joinedAt   DateTime @default(now())
+  role       String   @default("MEMBER") // OWNER, MEMBER, ADMIN
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, activityId])
+}
+
+// 8. Cel
+model Goal {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  title       String
+  description String?
+  categoryId  Int?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    Interest? @relation(fields: [categoryId], references: [id])
+  tasks       Task[]
+}
+
+// 9. Zadanie
+model Task {
+  id        Int      @id @default(autoincrement())
+  goalId    Int
+  userId    Int
+  dueDate   DateTime
+  status    String    
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  goal      Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  proofs    TaskProof[]
+}
+
+// 10. Dowód Zadania
+model TaskProof {
+  id         Int      @id @default(autoincrement())
+  taskId     Int
+  userId     Int
+  proofImage Bytes
+  createdAt  DateTime @default(now())
+
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
