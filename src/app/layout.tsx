@@ -1,6 +1,6 @@
 import { Provider } from "@/components/ui/provider";
 import type { Metadata } from "next";
-
+import "@/styles/global.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,3 +20,4 @@ export default function RootLayout({
     </html>
   );
 }
+
