@@ -7,6 +7,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Trash2, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toaster } from "@/components/ui/toaster";
 
 const goalSchema = z.object({
   title: z.string().min(1, "Tytuł celu jest wymagany"),
@@ -30,11 +32,12 @@ const activitySchema = z.object({
 type ActivityFormValues = z.infer<typeof activitySchema>;
 
 export default function AddActivity() {
+  const router = useRouter();
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ActivityFormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: {
@@ -49,9 +52,35 @@ export default function AddActivity() {
     name: "goals",
   });
 
-  const onSubmit = (data: ActivityFormValues) => {
-    console.log("Form Data:", data);
-    // TODO: Send to backend
+  const onSubmit = async (data: ActivityFormValues) => {
+    try {
+      const response = await fetch("/api/activities", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create activity");
+      }
+
+      toaster.create({
+        title: "Sukces",
+        description: "Aktywność została utworzona pomyślnie.",
+        type: "success",
+      });
+
+      router.push("/profile"); // Redirect to profile or activity list
+    } catch (error) {
+      console.error(error);
+      toaster.create({
+        title: "Błąd",
+        description: "Wystąpił błąd podczas tworzenia aktywności.",
+        type: "error",
+      });
+    }
   };
 
   return (
@@ -228,6 +257,7 @@ export default function AddActivity() {
                 color="brand.buttonText"
                 _hover={{ bg: "brand.accent2" }}
                 px={10}
+                loading={isSubmitting}
               >
                 Zapisz aktywność i cele
               </Button>

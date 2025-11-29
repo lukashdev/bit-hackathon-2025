@@ -147,7 +147,7 @@ export default function RadarActivityPage() {
                                 <Heading size="md" color="brand.mainText" textAlign="center">{activity.name}</Heading>
                                 
                                 {activity.description && (
-                                    <Text fontSize="sm" color="brand.content" textAlign="center" noOfLines={2}>
+                                    <Text fontSize="sm" color="brand.content" textAlign="center">
                                         {activity.description}
                                     </Text>
                                 )}

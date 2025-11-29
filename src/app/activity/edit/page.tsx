@@ -7,10 +7,14 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Trash2, Plus } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toaster } from "@/components/ui/toaster";
+import { useEffect, useState, Suspense } from "react";
 
 const goalSchema = z.object({
+  id: z.number().optional(),
   title: z.string().min(1, "Tytuł celu jest wymagany"),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   startDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Nieprawidłowa data"),
   endDate: z.string().refine((val) => !isNaN(Date.parse(val)), "Nieprawidłowa data"),
 }).refine((data) => {
@@ -23,18 +27,24 @@ const goalSchema = z.object({
 
 const activitySchema = z.object({
   name: z.string().min(1, "Nazwa aktywności jest wymagana"),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
   goals: z.array(goalSchema).optional(),
 });
 
 type ActivityFormValues = z.infer<typeof activitySchema>;
 
-export default function EditActivity() {
+function EditActivityContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activityId = searchParams.get("id");
+  const [isLoading, setIsLoading] = useState(true);
+
   const {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<ActivityFormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: {
@@ -49,10 +59,88 @@ export default function EditActivity() {
     name: "goals",
   });
 
-  const onSubmit = (data: ActivityFormValues) => {
-    console.log("Form Data:", data);
-    // TODO: Send to backend
+  useEffect(() => {
+    if (!activityId) {
+        toaster.create({
+            title: "Błąd",
+            description: "Brak ID aktywności.",
+            type: "error",
+        });
+        setIsLoading(false);
+        return;
+    }
+
+    const fetchActivity = async () => {
+        try {
+            const response = await fetch(`/api/activities/${activityId}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch activity");
+            }
+            const data = await response.json();
+            
+            // Format dates for input type="date"
+            const formattedGoals = data.goals?.map((goal: any) => ({
+                ...goal,
+                startDate: goal.startDate ? new Date(goal.startDate).toISOString().split('T')[0] : "",
+                endDate: goal.endDate ? new Date(goal.endDate).toISOString().split('T')[0] : "",
+            })) || [];
+
+            reset({
+                name: data.name,
+                description: data.description,
+                goals: formattedGoals,
+            });
+        } catch (error) {
+            console.error(error);
+            toaster.create({
+                title: "Błąd",
+                description: "Nie udało się pobrać danych aktywności.",
+                type: "error",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    fetchActivity();
+  }, [activityId, reset]);
+
+  const onSubmit = async (data: ActivityFormValues) => {
+    if (!activityId) return;
+
+    try {
+      const response = await fetch(`/api/activities/${activityId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update activity");
+      }
+
+      toaster.create({
+        title: "Sukces",
+        description: "Aktywność została zaktualizowana pomyślnie.",
+        type: "success",
+      });
+
+      router.push("/profile"); // Redirect to profile or activity list
+    } catch (error) {
+      console.error(error);
+      toaster.create({
+        title: "Błąd",
+        description: "Wystąpił błąd podczas aktualizacji aktywności.",
+        type: "error",
+      });
+    }
   };
+
+  if (isLoading) {
+      return <Container maxW={"8xl"} padding={"30px 15px"}><Box>Ładowanie...</Box></Container>;
+  }
 
   return (
     <>
@@ -238,6 +326,7 @@ export default function EditActivity() {
                 color="brand.buttonText"
                 _hover={{ bg: "brand.accent2" }}
                 px={10}
+                loading={isSubmitting}
               >
                 Zapisz aktywność i cele
               </Button>
@@ -247,4 +336,12 @@ export default function EditActivity() {
       <Footer />
     </>
   );
+}
+
+export default function EditActivity() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <EditActivityContent />
+        </Suspense>
+    )
 }
