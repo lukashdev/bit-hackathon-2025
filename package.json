@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.30.0",
@@ -37,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.5",
     "prisma": "6.16.0",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

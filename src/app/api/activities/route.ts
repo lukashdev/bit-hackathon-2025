@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, description, interestIds } = body;
+    const { name, description, interestIds, goals } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -85,6 +85,18 @@ export async function POST(request: Request) {
           } : undefined
         },
       });
+
+      if (goals && Array.isArray(goals)) {
+        await tx.goal.createMany({
+          data: goals.map((goal: any) => ({
+            activityId: newActivity.id,
+            title: goal.title,
+            description: goal.description,
+            startDate: new Date(goal.startDate),
+            endDate: new Date(goal.endDate),
+          })),
+        });
+      }
 
       await tx.activityParticipant.create({
         data: {
