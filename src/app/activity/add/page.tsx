@@ -106,7 +106,8 @@ export default function AddActivity() {
         type: "success",
       });
 
-      router.push("/profile"); // Redirect to profile or activity list
+      const dataJson = await response.json();
+      router.push(`/activity/${dataJson.id}`);
     } catch (error) {
       console.error(error);
       toaster.create({

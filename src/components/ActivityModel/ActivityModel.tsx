@@ -4,11 +4,12 @@ import { JSX, useState, useMemo, useRef, useEffect, Suspense } from 'react'
 import { OrbitControls, useGLTF, useCursor, Html, useProgress } from '@react-three/drei'
 import { GLTF } from 'three-stdlib'
 import { Canvas, useThree } from '@react-three/fiber'
-import { Box, Button, IconButton, Text, HStack, Center, Spinner } from '@chakra-ui/react'
+import { Box, Button, IconButton, Text, HStack, Center, Spinner, ChakraProvider } from '@chakra-ui/react'
 import { Check, RotateCcw, RotateCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toaster } from "@/components/ui/toaster"
 import { useProfile, useUpdateInterests } from '@/hooks/use-api'
+import { themeSystem } from '@/styles/theme'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -80,7 +81,13 @@ const interestToModel = Object.entries(modelToInterest).reduce((acc, [model, int
 
 function Loader() {
   const { progress } = useProgress()
-  return <Html center><Spinner size="xl" color="brand.accent" /></Html>
+  return (
+    <Html center>
+      <ChakraProvider value={themeSystem}>
+        <Spinner size="xl" color="brand.accent" />
+      </ChakraProvider>
+    </Html>
+  )
 }
 
 const CameraController = ({ setControls }: { setControls: (controls: any) => void }) => {
@@ -317,18 +324,20 @@ const SelectableMesh = ({ geometry, material, name, selected, onSelect, ...props
       />
       {hovered && (
         <Html position={[0, 0.2, 0]} center>
-          <Box 
-            bg="rgba(0,0,0,0.8)" 
-            color="white" 
-            px={3} 
-            py={1} 
-            borderRadius="md" 
-            fontSize="sm"
-            whiteSpace="nowrap"
-            pointerEvents="none"
-          >
-            {modelToInterest[name]}
-          </Box>
+          <ChakraProvider value={themeSystem}>
+            <Box 
+              bg="rgba(0,0,0,0.8)" 
+              color="white" 
+              px={3} 
+              py={1} 
+              borderRadius="md" 
+              fontSize="sm"
+              whiteSpace="nowrap"
+              pointerEvents="none"
+            >
+              {modelToInterest[name]}
+            </Box>
+          </ChakraProvider>
         </Html>
       )}
     </group>

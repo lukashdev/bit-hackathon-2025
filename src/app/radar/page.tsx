@@ -1,12 +1,13 @@
 "use client"
 import { Footer } from "@/components/Footer/Footer";
 import { Header } from "@/components/Header/Header";
-import { Button, Container, Heading, HStack, Box, Text, SimpleGrid, VStack, Circle, Image } from "@chakra-ui/react";
+import { Button, Container, Heading, HStack, Box, Text, SimpleGrid, VStack, Circle, Image, Skeleton } from "@chakra-ui/react";
 import Link from "next/link";
 import { Target, Image as ImageIcon, Users, Activity, ScanLine, Radio, LucideIcon } from "lucide-react";
+import { useStats } from "@/hooks/use-api";
 
 
-const StatCard = ({ icon: Icon, label, value, color }: { icon: LucideIcon, label: string, value: string, color: string }) => (
+const StatCard = ({ icon: Icon, label, value, color, loading }: { icon: LucideIcon, label: string, value: string | number, color: string, loading?: boolean }) => (
     <VStack 
         bg="whiteAlpha.100" 
         p={4} 
@@ -18,13 +19,15 @@ const StatCard = ({ icon: Icon, label, value, color }: { icon: LucideIcon, label
     >
         <HStack color={color} mb={2}>
             <Icon size={20} />
-            <Text fontWeight="bold" fontSize="2xl">{value}</Text>
+            {loading ? <Skeleton height="32px" width="60px" /> : <Text fontWeight="bold" fontSize="2xl">{value}</Text>}
         </HStack>
         <Text fontSize="sm" color="gray.400">{label}</Text>
     </VStack>
 )
 
 export default function RadarPage() {
+    const { data: stats, isLoading } = useStats();
+
     return (
         <> 
             <Header />
@@ -41,10 +44,10 @@ export default function RadarPage() {
                         <VStack gap={8}>
                             <Box>
                                 <Heading size="3xl" mb={2} bgGradient="to-r" gradientFrom="green.400" gradientTo="blue.500" bgClip="text">
-                                    Radar Aktywności
+                                    Radar
                                 </Heading>
                                 <Text color="gray.400" fontSize="lg">
-                                    Uruchom skaner i zobacz osoby gotowe do działania. Algorytm pomaga znaleźć idealnego partnera do wspólnej realizacji celów.
+                                    Uruchom skaner i znajdź to, czego szukasz. Algorytm pomaga znaleźć idealne aktywności oraz partnerów do wspólnej realizacji celów.
                                 </Text>
                             </Box>
                             
@@ -52,17 +55,30 @@ export default function RadarPage() {
                                <Image src="/radar.png" alt="Radar" mx="auto" className="radar" />
                             </Box>
 
-                            <Button 
-                                asChild 
-                                size="xl" 
-                                colorPalette="green" 
-                                variant="solid"
-                                className="group"
-                            >
-                                <Link href="/radar/activity">
-                                    <ScanLine /> Rozpocznij skanowanie
-                                </Link>
-                            </Button>
+                            <HStack gap={4} wrap="wrap" justify="center">
+                                <Button 
+                                    asChild 
+                                    size="xl" 
+                                    colorPalette="green" 
+                                    variant="solid"
+                                    className="group"
+                                >
+                                    <Link href="/radar/activity">
+                                        <Activity /> Radar Aktywności
+                                    </Link>
+                                </Button>
+                                <Button 
+                                    asChild 
+                                    size="xl" 
+                                    colorPalette="blue" 
+                                    variant="solid"
+                                    className="group"
+                                >
+                                    <Link href="/radar/users">
+                                        <Users /> Radar Użytkowników
+                                    </Link>
+                                </Button>
+                            </HStack>
                         </VStack>
                     </Box>
 
@@ -86,26 +102,30 @@ export default function RadarPage() {
                             <StatCard 
                                 icon={Target} 
                                 label="Zrealizowanych Celów" 
-                                value="1,248" 
+                                value={stats?.completedGoals || 0} 
                                 color="blue.400" 
+                                loading={isLoading}
                             />
                             <StatCard 
                                 icon={ImageIcon} 
                                 label="Wstawionych Zdjęć" 
-                                value="8,502" 
+                                value={stats?.proofsCount || 0} 
                                 color="purple.400" 
+                                loading={isLoading}
                             />
                             <StatCard 
                                 icon={Users} 
                                 label="Aktywnych Użytkowników" 
-                                value="342" 
+                                value={stats?.usersCount || 0} 
                                 color="orange.400" 
+                                loading={isLoading}
                             />
                             <StatCard 
                                 icon={Activity} 
                                 label="Dostępnych Aktywności" 
-                                value="56" 
+                                value={stats?.activitiesCount || 0} 
                                 color="green.400" 
+                                loading={isLoading}
                             />
                         </SimpleGrid>
                     </Box>

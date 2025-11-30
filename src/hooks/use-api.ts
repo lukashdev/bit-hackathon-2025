@@ -93,6 +93,13 @@ export interface RadarActivity {
   hasPendingRequest: boolean;
 }
 
+export interface GlobalStats {
+  completedGoals: number;
+  proofsCount: number;
+  usersCount: number;
+  activitiesCount: number;
+}
+
 // --- Hooks ---
 
 // Profile
@@ -342,6 +349,17 @@ export function useRadarActivity() {
     queryFn: async () => {
       const res = await fetch("/api/radar/activity");
       if (!res.ok) throw new Error("Failed to fetch activity radar matches");
+      return res.json();
+    },
+  });
+}
+
+export function useStats() {
+  return useQuery<GlobalStats>({
+    queryKey: ["stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/stats");
+      if (!res.ok) throw new Error("Failed to fetch stats");
       return res.json();
     },
   });

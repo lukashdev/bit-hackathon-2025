@@ -14,7 +14,7 @@ import { toaster } from "@/components/ui/toaster";
 const registerSchema = z.object({
     name: z.string().min(2, "Nazwa musi mieć co najmniej 2 znaki"),
     email: z.string().email("Nieprawidłowy adres email"),
-    password: z.string().min(6, "Hasło musi mieć co najmniej 6 znaków"),
+    password: z.string().min(8, "Hasło musi mieć co najmniej 6 znaków"),
     confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Hasła muszą być takie same",
@@ -42,10 +42,10 @@ export default function Register() {
             onSuccess: () => {
                 toaster.create({
                     title: "Rejestracja udana",
-                    description: "Możesz się teraz zalogować",
+                    description: "Wybierz swoje zainteresowania",
                     type: "success",
                 });
-                router.push("/login");
+                router.push("/interests");
             },
             onError: (ctx) => {
                  toaster.create({
@@ -100,7 +100,7 @@ export default function Register() {
 
                                 <Field label="Hasło" invalid={!!errors.password} errorText={errors.password?.message}>
                                     <PasswordInput
-                                        placeholder="Hasło (min. 6 znaków)" 
+                                        placeholder="Hasło (min. 8 znaków)" 
                                         borderColor="brand.borderColor"
                                         _focus={{ borderColor: "brand.accent", outline: "none" }}
                                         {...register("password")} 

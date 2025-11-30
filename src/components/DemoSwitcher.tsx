@@ -63,9 +63,7 @@ export function DemoSwitcher() {
                 password: "password123",
             }, {
                 onSuccess: () => {
-                    router.refresh()
-                    // Optional: close menu after login
-                    // setIsOpen(false) 
+                    window.location.reload()
                 },
                 onError: (ctx) => {
                     alert(ctx.error.message)
