@@ -103,7 +103,7 @@ async function main() {
         
         // Shuffle interests to get unique random ones
         const shuffledInterests = [...interests].sort(() => 0.5 - Math.random());
-        const selectedInterests = shuffledInterests.slice(0, 3);
+        const selectedInterests = shuffledInterests.slice(0, 4);
 
         const updatedUser = await prisma.user.update({
             where: { id: res.user.id },
