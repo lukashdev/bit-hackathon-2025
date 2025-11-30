@@ -222,9 +222,10 @@ export const ActivityModels = () => {
 
       {hoveredItem && (
         <Box 
-          position="fixed" 
-          left={mousePos.x-415} 
-          top={mousePos.y-130} 
+          position="absolute" 
+          left={"50%"} 
+          top={"5px"}
+          transform="translateX(-50%)" 
           zIndex={9999}
           pointerEvents="none"
           bg="rgba(0,0,0,0.9)" 
