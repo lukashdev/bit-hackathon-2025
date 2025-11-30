@@ -42,9 +42,6 @@ export function Footer() {
                 <Icon fontSize="xl"><LuGithub /></Icon>
               </Link>
               <Link href="#" color="brand.mainText" _hover={{ color: "brand.accent" }}>
-                <Icon fontSize="xl"><LuTwitter /></Icon>
-              </Link>
-              <Link href="#" color="brand.mainText" _hover={{ color: "brand.accent" }}>
                 <Icon fontSize="xl"><LuLinkedin /></Icon>
               </Link>
             </HStack>
