@@ -26,15 +26,6 @@ export function Footer() {
             gap={4}
           >
             <HStack gap={2}>
-                <Box 
-                    w="52px" 
-                    h="52px" 
-                    bg="brand.accent" 
-                    borderRadius="lg" 
-                    display="flex" 
-                    alignItems="center" 
-                    justifyContent="center"
-                >
                     <ClientOnly fallback={<Skeleton w="40px" h="40px" />}>
                         <Image 
                           src={logoSrc}
@@ -43,7 +34,6 @@ export function Footer() {
                           objectFit="contain"
                         />
                     </ClientOnly>
-                </Box>
                 <Text fontWeight="bold" color="brand.mainText" fontSize="lg" ml={2}>GlowUp Together</Text>
             </HStack>
             
@@ -70,9 +60,9 @@ export function Footer() {
             color="brand.content"
             gap={4}
           >
-            <Text>© 2025 LosersLogo. Wszelkie prawa zastrzeżone.</Text>
+            <Text>© 2025 Światłowody Makajlera. Wszelkie prawa zastrzeżone.</Text>
             <HStack gap={4}>
-              <Link href="#" color="brand.content" _hover={{ color: "brand.accent" }}>Polityka Prywatności</Link>
+              <Link href="/privacy" color="brand.content" _hover={{ color: "brand.accent" }}>Polityka Prywatności</Link>
               <Link href="#" color="brand.content" _hover={{ color: "brand.accent" }}>Regulamin</Link>
               <Link href="#" color="brand.content" _hover={{ color: "brand.accent" }}>Kontakt</Link>
             </HStack>

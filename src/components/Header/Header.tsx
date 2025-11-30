@@ -83,15 +83,6 @@ export function Header() {
                     {/* Logo */}
                     <Link href="/">
                         <HStack gap={2} cursor="pointer">
-                            <Box 
-                                w="52px" 
-                                h="52px" 
-                                bg="brand.accent" 
-                                borderRadius="lg" 
-                                display="flex" 
-                                alignItems="center" 
-                                justifyContent="center"
-                            >
                                 <ClientOnly fallback={<Skeleton w="40px" h="40px" />}>
                                     <Image 
                                         src={logoSrc} 
@@ -100,7 +91,6 @@ export function Header() {
                                         objectFit="contain"
                                     />
                                 </ClientOnly>
-                            </Box>
                             <Text fontWeight="bold" color="brand.mainText" fontSize="lg" ml={2}>GlowUp Together</Text>
                         </HStack>
                     </Link>
