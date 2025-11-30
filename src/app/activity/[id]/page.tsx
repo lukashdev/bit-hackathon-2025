@@ -95,6 +95,10 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
     const fetchActivity = async () => {
         try {
             const res = await fetch(`/api/activities/${id}`)
+            if (res.status === 403 || res.status === 404) {
+                router.push("/radar")
+                return
+            }
             if (!res.ok) throw new Error("Failed to fetch activity")
             const data = await res.json()
             setActivity(data)
@@ -255,6 +259,21 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
         } catch (error) {
             console.error(error)
             toaster.create({ title: "Błąd", description: "Nie udało się zmienić roli", type: "error" })
+        }
+    }
+
+    const handleRemoveUser = async (userId: string) => {
+        if (!confirm("Czy na pewno chcesz usunąć tego użytkownika?")) return
+        try {
+            const res = await fetch(`/api/activities/${id}/members/${userId}`, { method: "DELETE" })
+            if (!res.ok) {
+                const error = await res.json()
+                throw new Error(error.error || "Failed to remove user")
+            }
+            toaster.create({ title: "Sukces", description: "Użytkownik został usunięty", type: "success" })
+            fetchActivity()
+        } catch (error: any) {
+            toaster.create({ title: "Błąd", description: error.message, type: "error" })
         }
     }
 
@@ -935,11 +954,18 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
                                                     </Text>
                                                 </Box>
                                             </HStack>
-                                            {isOwner && p.role === "MEMBER" && (
-                                                <Button size="xs" variant="ghost" title="Mianuj administratorem" onClick={() => handlePromote(p.userId)}>
-                                                    <Shield size={14} />
-                                                </Button>
-                                            )}
+                                            <HStack gap={1}>
+                                                {isOwner && p.role === "MEMBER" && (
+                                                    <Button size="xs" variant="ghost" title="Mianuj administratorem" onClick={() => handlePromote(p.userId)}>
+                                                        <Shield size={14} />
+                                                    </Button>
+                                                )}
+                                                {(isOwner || (isAdmin && p.role === "MEMBER")) && p.userId !== session?.user?.id && (
+                                                    <Button size="xs" colorPalette="red" variant="ghost" title="Usuń z aktywności" onClick={() => handleRemoveUser(p.userId)}>
+                                                        <UserMinus size={14} />
+                                                    </Button>
+                                                )}
+                                            </HStack>
                                             {p.role === "ADMIN" && <ShieldCheck size={14} color="green" />}
                                         </HStack>
                                     ))}

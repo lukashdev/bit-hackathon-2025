@@ -1,24 +1,26 @@
 "use client"
-import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton, Popover } from "@chakra-ui/react";
+import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton, Popover, VStack, IconButton } from "@chakra-ui/react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { AccessibilityControls } from "@/components/ui/accessibility-controls";
 import Link from "next/link";
-import { LuLogOut, LuUser, LuBell, LuPlus } from "react-icons/lu";
+import { LuLogOut, LuUser, LuBell, LuPlus, LuMenu, LuX, LuRadar } from "react-icons/lu";
 import { useEffect, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface Invitation {
     id: number
     sender: { name: string }
-    activity: { name: string }
+    activity: { id: number, name: string }
 }
 
 export function Header() {
     const session = useSession();
     const router = useRouter()
     const [invitations, setInvitations] = useState<Invitation[]>([])
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const signOutHandler = async () => {
         await signOut();
@@ -42,7 +44,7 @@ export function Header() {
         fetchInvitations()
     }, [session.data])
 
-    const handleRespond = async (id: number, action: "accept" | "reject") => {
+    const handleRespond = async (id: number, activityId: number, action: "accept" | "reject") => {
         try {
             const res = await fetch(`/api/invitations/${id}/respond`, {
                 method: "POST",
@@ -52,6 +54,10 @@ export function Header() {
             if (res.ok) {
                 toaster.create({ title: "Sukces", description: action === "accept" ? "Zaakceptowano zaproszenie" : "Odrzucono zaproszenie", type: "success" })
                 fetchInvitations()
+                if (action === "accept") {
+                    router.push(`/activity/${activityId}`)
+                    setIsMobileMenuOpen(false)
+                }
             }
         } catch (error) {
             console.error(error)
@@ -65,8 +71,8 @@ export function Header() {
             position="sticky"
             top="0"
             zIndex={100}
-            bg={{ base: "rgba(255, 239, 234, 0.3)", _dark: "rgba(18, 18, 18, 0.3)" }}
-            backdropFilter="blur(6px)"
+            bg={{ base: "rgba(255, 239, 234, 0.95)", _dark: "rgba(18, 18, 18, 0.95)" }}
+            backdropFilter="blur(10px)"
             borderBottom="1px solid"
             borderColor="brand.borderColor"
             transition="background 0.2s"
@@ -88,13 +94,14 @@ export function Header() {
                             >
                                 <Text color="brand.mainText" fontWeight="bold" fontSize="lg">L</Text>
                             </Box>
-                            <Heading size="lg" color="brand.mainText" fontWeight="bold" letterSpacing="tight">
+                            <Heading size="lg" color="brand.mainText" fontWeight="bold" letterSpacing="tight" display={{ base: "none", sm: "block" }}>
                                 LosersLogo
                             </Heading>
                         </HStack>
                     </Link>
 
-                    <HStack gap={4}>
+                    {/* Desktop Navigation */}
+                    <HStack gap={4} display={{ base: "none", md: "flex" }}>
                         <AccessibilityControls />
                         <ColorModeButton />
                         
@@ -105,21 +112,32 @@ export function Header() {
                             </HStack>
                         ) : session.data ? (
                             <HStack gap={4}>
-                                <Link href="/activity/add">
-                                    <Button variant="ghost" size="sm" title="Utwórz aktywność">
-                                        <LuPlus />
+                                <Link href="/radar">
+                                    <Button variant="ghost" size="sm" gap={2}>
+                                        <LuRadar /> Radar
                                     </Button>
                                 </Link>
 
-                                <Popover.Root positioning={{ placement: "bottom-end", gutter: 10 }}>
-                                    <Popover.Trigger asChild>
-                                        <Button variant="ghost" size="sm" position="relative">
-                                            <LuBell />
-                                            {invitations.length > 0 && (
-                                                <Box position="absolute" top="0" right="0" w="8px" h="8px" bg="red.500" borderRadius="full" />
-                                            )}
+                                <Tooltip content="Utwórz aktywność">
+                                    <Link href="/activity/add">
+                                        <Button variant="ghost" size="sm">
+                                            <LuPlus />
+                                            Utwórz aktywność
                                         </Button>
-                                    </Popover.Trigger>
+                                    </Link>
+                                </Tooltip>
+
+                                <Popover.Root positioning={{ placement: "bottom-end", gutter: 10 }}>
+                                    <Tooltip content="Powiadomienia">
+                                        <Popover.Trigger asChild>
+                                            <Button variant="ghost" size="sm" position="relative">
+                                                <LuBell />
+                                                {invitations.length > 0 && (
+                                                    <Box position="absolute" top="0" right="0" w="8px" h="8px" bg="red.500" borderRadius="full" />
+                                                )}
+                                            </Button>
+                                        </Popover.Trigger>
+                                    </Tooltip>
                                     <Popover.Positioner>
                                         <Popover.Content width="300px">
                                             <Popover.Arrow />
@@ -135,8 +153,8 @@ export function Header() {
                                                                     <Text as="span" fontWeight="bold">{inv.sender.name}</Text> zaprasza do <Text as="span" fontWeight="bold">{inv.activity.name}</Text>
                                                                 </Text>
                                                                 <HStack mt={2} justify="flex-end">
-                                                                    <Button size="xs" colorPalette="green" onClick={() => handleRespond(inv.id, "accept")}>Akceptuj</Button>
-                                                                    <Button size="xs" colorPalette="red" variant="ghost" onClick={() => handleRespond(inv.id, "reject")}>Odrzuć</Button>
+                                                                    <Button size="xs" colorPalette="green" onClick={() => handleRespond(inv.id, inv.activity.id, "accept")}>Akceptuj</Button>
+                                                                    <Button size="xs" colorPalette="red" variant="ghost" onClick={() => handleRespond(inv.id, inv.activity.id, "reject")}>Odrzuć</Button>
                                                                 </HStack>
                                                             </Box>
                                                         ))}
@@ -160,7 +178,7 @@ export function Header() {
                                     onClick={signOutHandler}
                                 >
                                     <LuLogOut />
-                                    Wyloguj
+                                    Wyloguj się
                                 </Button>
                             </HStack>
                         ) : (
@@ -183,8 +201,112 @@ export function Header() {
                             </HStack>
                         )}
                     </HStack>
+
+                    {/* Mobile Navigation Toggle */}
+                    <HStack display={{ base: "flex", md: "none" }} gap={2}>
+                        <AccessibilityControls />
+                        <ColorModeButton />
+                        <Button variant="ghost" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                            {isMobileMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
+                        </Button>
+                    </HStack>
                 </Flex>
             </Container>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <Box
+                    position="absolute"
+                    top="70px"
+                    left="0"
+                    w="100%"
+                    h="calc(100vh - 70px)"
+                    bg="brand.background"
+                    zIndex={99}
+                    p={4}
+                    borderBottom="1px solid"
+                    borderColor="brand.borderColor"
+                    overflowY="auto"
+                >
+                    <VStack gap={4} align="stretch">
+                        {session.data ? (
+                            <>
+                                <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button variant="ghost" w="100%" justifyContent="flex-start" gap={3}>
+                                        <LuUser /> Profil ({session.data.user.name})
+                                    </Button>
+                                </Link>
+                                <Link href="/radar" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button variant="ghost" w="100%" justifyContent="flex-start" gap={3}>
+                                        <LuRadar /> Radar aktywności
+                                    </Button>
+                                </Link>
+                                <Link href="/activity/add" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button variant="ghost" w="100%" justifyContent="flex-start" gap={3}>
+                                        <LuPlus /> Utwórz aktywność
+                                    </Button>
+                                </Link>
+                                
+                                {/* Mobile Invitations */}
+                                <Box p={4} borderWidth="1px" borderRadius="md" bg="whiteAlpha.200">
+                                    <Heading size="sm" mb={2} display="flex" alignItems="center" gap={2}>
+                                        <LuBell /> Zaproszenia ({invitations.length})
+                                    </Heading>
+                                    {invitations.length === 0 ? (
+                                        <Text fontSize="sm" color="gray.500">Brak nowych zaproszeń</Text>
+                                    ) : (
+                                        <VStack gap={2} align="stretch">
+                                            {invitations.map(inv => (
+                                                <Box key={inv.id} p={2} borderWidth="1px" borderRadius="md" bg="whiteAlpha.500">
+                                                    <Text fontSize="sm" mb={2}>
+                                                        <strong>{inv.sender.name}</strong> zaprasza do <strong>{inv.activity.name}</strong>
+                                                    </Text>
+                                                    <HStack>
+                                                        <Button size="xs" colorPalette="green" flex={1} onClick={() => handleRespond(inv.id, inv.activity.id, "accept")}>Akceptuj</Button>
+                                                        <Button size="xs" colorPalette="red" variant="ghost" flex={1} onClick={() => handleRespond(inv.id, inv.activity.id, "reject")}>Odrzuć</Button>
+                                                    </HStack>
+                                                </Box>
+                                            ))}
+                                        </VStack>
+                                    )}
+                                </Box>
+
+                                <Button 
+                                    variant="surface" 
+                                    colorPalette="red" 
+                                    w="100%" 
+                                    justifyContent="flex-start" 
+                                    gap={3}
+                                    onClick={() => {
+                                        signOutHandler();
+                                        setIsMobileMenuOpen(false);
+                                    }}
+                                >
+                                    <LuLogOut /> Wyloguj
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button variant="ghost" w="100%" justifyContent="flex-start">
+                                        Zaloguj
+                                    </Button>
+                                </Link>
+                                <Link href="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Button 
+                                        w="100%" 
+                                        bg="brand.accent" 
+                                        color="brand.buttonText" 
+                                        _hover={{ bg: "brand.accent2" }}
+                                    >
+                                        Zarejestruj
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
+                    </VStack>
+                </Box>
+            )}
         </Box>
     );
 }

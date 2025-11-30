@@ -121,7 +121,7 @@ export default function Profile() {
                       <Text color="brand.content">E-mail</Text>
                     </HStack>
                   </DataList.ItemLabel>
-                  <DataList.ItemValue color="brand.mainText">{profile.email}</DataList.ItemValue>
+                  <DataList.ItemValue color="brand.mainText" wordBreak="break-all">{profile.email}</DataList.ItemValue>
                 </DataList.Item>
               </DataList.Root>
 
