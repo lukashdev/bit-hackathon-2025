@@ -1,8 +1,11 @@
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { Box, Flex, Heading, Image, Stack, Button, Text, Link } from "@chakra-ui/react";
+import { useSession } from "@/lib/auth-client";
 
 export default function Home() {
+  const session = useSession()
+
   return (
     <Flex direction="column" minH="100vh">
       <Header />
@@ -33,9 +36,11 @@ export default function Home() {
               border={"2px solid black"}
               w={{ base: "full", md: "auto" }}
               >
-                <Link href="/register" _hover={{ textDecoration: "none", color: "inherit" }}>
+                {!session ? <Link href="/register" _hover={{ textDecoration: "none", color: "inherit" }}>
               Rozpocznij swoją podróż już dziś!
-              </Link>
+              </Link> : <Link href="/profile" _hover={{ textDecoration: "none", color: "inherit" }}>
+              Przejdź do swojego profilu
+              </Link>}
             </Button>
           </Box>
           <Box w={{ base: "100%", md: "50%" }} display="flex" justifyContent={{ base: "center", md: "flex-end" }}>

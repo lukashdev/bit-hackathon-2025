@@ -77,7 +77,7 @@ export default function UserProfile() {
         as={"main"}
         minH={"calc(100vh - 74px)"}
       >
-        <HStack alignItems="flex-start" gap={6} wrap={{ base: "wrap", md: "nowrap" }}>
+        <HStack alignItems="flex-start" gap={6} wrap={{ base: "wrap", md: "nowrap" }} overflow={"hidden"}>
           {/* Lewa kolumna - Profil */}
           <Card.Root width={["100%", "100%", "400px"]} {...cardStyles}>
             <Card.Header>

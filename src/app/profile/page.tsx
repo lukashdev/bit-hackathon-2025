@@ -73,7 +73,7 @@ export default function Profile() {
       >
         <HStack alignItems="flex-start" gap={6} wrap={{ base: "wrap", md: "nowrap" }}>
           {/* Lewa kolumna - Profil */}
-          <Card.Root width={["100%", "100%", "400px"]} {...cardStyles}>
+          <Card.Root width={["100%", "100%", "400px"]} {...cardStyles} overflow={"hidden"}>
             <Card.Header>
               <HStack gap={4}>
                 <Box

@@ -14,7 +14,7 @@ import { toaster } from "@/components/ui/toaster";
 const registerSchema = z.object({
     name: z.string().min(2, "Nazwa musi mieć co najmniej 2 znaki"),
     email: z.string().email("Nieprawidłowy adres email"),
-    password: z.string().min(8, "Hasło musi mieć co najmniej 6 znaków"),
+    password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
     confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Hasła muszą być takie same",
