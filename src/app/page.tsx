@@ -1,10 +1,11 @@
+"use client";
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
 import { Box, Flex, Heading, Image, Stack, Button, Text, Link } from "@chakra-ui/react";
 import { useSession } from "@/lib/auth-client";
 
 export default function Home() {
-  const session = useSession()
+  const { data: session } = useSession();
 
   return (
     <Flex direction="column" minH="100vh">
@@ -33,7 +34,6 @@ export default function Home() {
               color="brand.buttonText"
               _hover={{ bg: "brand.accent2" }}
               boxShadow="md"
-              border={"2px solid black"}
               w={{ base: "full", md: "auto" }}
               >
                 {!session ? <Link href="/register" _hover={{ textDecoration: "none", color: "inherit" }}>
