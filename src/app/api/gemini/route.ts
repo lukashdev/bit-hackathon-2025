@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     // Jeśli "2.5" jest dostępne, zmień nazwę modelu tutaj.
     // Obecnie standardem dla Flash Lite jest seria 2.0.
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.0-flash-lite-preview-02-05" 
+      model: "gemini-2.5-flash-lite" 
     });
 
     const result = await model.generateContent(prompt);

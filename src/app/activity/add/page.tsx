@@ -215,7 +215,7 @@ export default function AddActivity() {
               backdropFilter="blur(5px)"
             >
               <Flex justify="space-between" align="center" mb={6}>
-                <Heading size="lg">Cele (Goals)</Heading>
+                <Heading size="lg">Zaplanuj cele</Heading>
                 <Button
                   size="sm"
                   variant="outline"

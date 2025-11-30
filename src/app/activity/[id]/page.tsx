@@ -694,7 +694,7 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
                             )}
                             {joinStatus === "MEMBER" && (
                                 <>
-                                    <Button asChild colorPalette="blue" variant="outline">
+                                    <Button asChild colorPalette="blue" variant="surface">
                                         <Link href={`/activity/${activity.id}/progress`}>
                                             Moje postępy
                                         </Link>
@@ -965,8 +965,9 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
                                                         <UserMinus size={14} />
                                                     </Button>
                                                 )}
+                                                {p.role === "ADMIN" && <ShieldCheck size={14} color="green" />}
                                             </HStack>
-                                            {p.role === "ADMIN" && <ShieldCheck size={14} color="green" />}
+                                            
                                         </HStack>
                                     ))}
                                 </Stack>

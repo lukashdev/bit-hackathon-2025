@@ -197,7 +197,9 @@ export default function Profile() {
               <Card.Body>
                 <Stack gap={3}>
                   {activities && activities.length > 0 ? (
-                      activities.map((activity) => (
+                      activities.map((activity) => {
+                        const userRole = activity.participants?.find(p => p.userId === profile.id)?.role;
+                        return (
                         <Link key={activity.id} href={`/activity/${activity.id}`}>
                           <Box
                             bg="brand.glassBgInner"
@@ -206,13 +208,25 @@ export default function Profile() {
                             _hover={{ bg: "brand.glassBgInnerHover" }}
                             transition="background 0.2s"
                           >
-                            <Heading size="md" color="brand.mainText">{activity.name}</Heading>
+                            <HStack justify="space-between" mb={1}>
+                                <Heading size="md" color="brand.mainText">{activity.name}</Heading>
+                                {userRole === 'OWNER' && (
+                                    <Tag.Root colorPalette="purple" size="sm">
+                                        <Tag.Label>Założyciel</Tag.Label>
+                                    </Tag.Root>
+                                )}
+                                {userRole === 'ADMIN' && (
+                                    <Tag.Root colorPalette="blue" size="sm">
+                                        <Tag.Label>Admin</Tag.Label>
+                                    </Tag.Root>
+                                )}
+                            </HStack>
                             <Text fontSize="sm" color="brand.content">
                               {activity.goals ? `${activity.goals.length} celów` : "Brak celów"}
                             </Text>
                           </Box>
                         </Link>
-                      ))
+                      )})
                   ) : (
                       <Text color="brand.content">Nie należysz do żadnych aktywności</Text>
                   )}

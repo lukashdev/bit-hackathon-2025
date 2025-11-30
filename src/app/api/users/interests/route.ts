@@ -31,8 +31,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No interests provided' }, { status: 400 });
     }
 
-    if (interests.length > 5) {
-      return NextResponse.json({ error: 'Maximum 5 interests allowed' }, { status: 400 });
+    if (interests.length > 4) {
+      return NextResponse.json({ error: 'Maximum 4 interests allowed' }, { status: 400 });
     }
 
     // disallow selecting non-interactive/scene items

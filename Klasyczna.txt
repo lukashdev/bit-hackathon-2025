@@ -1,0 +1,79 @@
+“Zróbmy to razem”
+1.​ Treść zadania
+Waszym zadaniem jest stworzenie aplikacji zgodnie z hasłem “Zróbmy to razem”. Waszym
+celem jest zaprojektowanie rozwiązania, które ułatwi wspólną aktywność w grupie. Czy to
+poprzez grupową naukę do egzaminu, wyjście ze znajomymi czy też wspólne treningi wybór pozostawiamy Wam - dozwolona jest jakakolwiek interpretacja hasła.
+Główną funkcjonalnością aplikacji powinien być “radar aktywności” - rozwiązanie,
+które pomoże znaleźć osoby chętne do wspólnego działania.
+Wspólnymi siłami stwórzcie rozwiązanie, które nie tylko odpowie na temat zadania, ale
+również zachwyci innowacyjnością i użytecznością. Powinniście przeanalizować podobne
+aplikacje dostępne na rynku i zaprojektować pomysł, który będzie oryginalnym podejściem
+do tematu. Przed rozpoczęciem implementacji zastanówcie się nad problemami, jakie mogą
+się pojawić w Waszym rozwiązaniu oraz sposobami ich rozwiązania.
+
+2.​ Zasady i wymagania:
+a.​ Powinniście stworzyć działającą aplikację w ciągu 24 godzin. Nie musi ona
+być całkowicie ukończona i przetestowana pod każdym kątem, najważniejsze
+jest, by jak najlepiej odzwierciedlała Wasz pomysł. Po upływie tego czasu
+projekt musi zostać zaprezentowany przed jury.
+
+b.​ Wasza aplikacja powinna spełniać wymogi zadania.
+c.​ Rodzaj aplikacji, styl graficzny, funkcjonalności, czy grupa docelowa są
+dobierane przez Was, macie w tej kwestii całkowitą dowolność! Pamiętajcie,
+najbardziej liczy się Wasz pomysł! Aplikacja powinna wyróżniać się na tle
+innych pomysłów oraz dostępnych już aplikacji.
+
+d.​ Możecie stworzyć aplikację z wykorzystaniem dowolnego oprogramowania
+oraz narzędzi.
+
+e.​ Niedozwolone jest korzystanie z pomocy osób trzecich (czyli spoza Zespołu)
+z wyjątkiem obecnych na wydarzeniu Mentorów.
+
+f.​ Pamiętajcie o podesłaniu linku do publicznego repozytorium oraz prezentacji
+w formularzu https://forms.gle/7z51VRgV5BZYYeYQ9 do godziny 11:30 30
+listopada 2025 roku.
+
+g.​ Wasz projekt musi być zgodny z założeniami wydarzenia, które zostały
+szczegółowo opisane w Regulaminie, znajdującym się na stronie
+bit.bestgliwice.pl.​
+
+3.​ Kryteria oceniania:
+
+Warunkiem dopuszczenia do oceny projektu, jest pokazanie działającej
+aplikacji w obecności Jury.
+a.​ Zgodność z tematyką kategorii (0-10 pkt).
+b.​ Uwzględnienie głównej funkcjonalności aplikacji (0-10 pkt).
+c.​ Poziom zaawansowania wykorzystanych technologii (np. rozwiązania
+szyfrujące, wykorzystanie sztucznej inteligencji, automatyzacja, integracja z
+innymi narzędziami) (0-10 pkt).
+d.​ UI i UX
+i.​ UI design system (0-10 pkt)​
+Ocena estetyki wizualnej oraz spójności graficznej aplikacji. W tym
+kryterium sprawdzamy, czy aplikacja wygląda estetycznie i czy
+wszystkie elementy są spójne graficznie (czy kolory, ikony, czcionki i
+elementy graficzne tworzą harmonijną całość).
+ii.​ Łatwość obsługi i User Experience (UX) (0-15 pkt)​
+Ocena intuicyjności nawigacji i logiczności przepływu aplikacji. Chodzi
+o to, jak łatwo użytkownik może znaleźć informacje i korzystać z
+głównych funkcji. Tutaj oceniamy, czy poszczególne sekcje są dobrze
+zaprojektowane i łatwe do odnalezienia.
+iii.​ Dostępność (0-5 pkt)​
+Ocena funkcji, które sprawiają, że aplikacja jest dostępna i wygodna
+dla różnych grup użytkowników, takich jak osoby z
+niepełnosprawnościami, starsze czy słabowidzące. Może to zostać
+zrealizowane poprzez opcje trybu ciemnego/jasnego/kontrastowego,
+zmianę rozmiaru czcionki bądź wsparcie korzystania z klawiatury.
+e.​ Innowacyjność i pomysłowość zaproponowanych rozwiązań (w tym
+oryginalność względem dostępnych już aplikacji) (0-15 pkt).
+f.​ Potencjał do rozwoju i sprzedaży (0-15 pkt).
+g.​ Sposób prezentacji (0-10 pkt).​
+4.​ Prezentacja projektów:​
+Pół godziny po zakończeniu konkursu, o godzinie 12:00, każda drużyna zaprezentuje
+wyniki swojej pracy w losowej kolejności. Czas przeznaczony na prezentację projektu
+to 7 minut. Następnie Jury będzie miało okazję zadać pytania do zaprezentowanych
+projektów. Forma prezentacji powinna być w formacie .pdf, .ppt, .jpg, .png, .mp4,
+należy jednak pamiętać o pokazaniu, że aplikacja działa. Może być to nagranie
+działającej aplikacji, bądź pokazanie na żywo najważniejszych funkcji, a następnie
+zaprezentowanie pozostałej części na prezentacji.
+
+

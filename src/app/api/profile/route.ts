@@ -120,6 +120,7 @@ export async function GET(request: Request) {
     }
 
     const response = {
+      id: user.id,
       nick: user.name,
       email: user.email,
       image: user.image,

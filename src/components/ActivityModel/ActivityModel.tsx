@@ -55,27 +55,27 @@ type GLTFResult = GLTF & {
   }
 }
 
-const modelToInterest: Record<string, string> = {
-  matydojogi: 'Joga',
-  hantle: 'Siłownia',
-  gitara: 'Muzyka',
-  ksiazki: 'Literatura',
-  walizka: 'Podróże',
-  puchar: 'Rywalizacja',
-  zloto: 'Inwestowanie',
-  kostkarubika: 'Łamigłówki',
-  komputer: 'Technologia',
-  jedzenie: 'Gotowanie',
-  kubek: 'Kawa',
-  roslina: 'Ogrodnictwo',
-  zegar: 'Produktywność',
-  sluchawki: 'Podcasty',
-  gielda: 'Finanse',
-  Rekawice: 'Sztuki walki',
+const modelData: Record<string, { interest: string, description: string }> = {
+  matydojogi: { interest: 'Joga', description: 'Praktyka mindfulness' },
+  hantle: { interest: 'Siłownia', description: 'Dbanie o kondycję fizyczną' },
+  gitara: { interest: 'Muzyka', description: 'Rozwijanie kreatywności' },
+  ksiazki: { interest: 'Literatura', description: 'Poszerzanie wiedzy' },
+  walizka: { interest: 'Podróże', description: 'Odkrywanie nowych miejsc' },
+  puchar: { interest: 'Rywalizacja', description: 'Dążenie do celów' },
+  zloto: { interest: 'Inwestowanie', description: 'Budowanie przyszłości' },
+  kostkarubika: { interest: 'Łamigłówki', description: 'Trening logicznego myślenia' },
+  komputer: { interest: 'Technologia', description: 'Nauka nowych umiejętności' },
+  jedzenie: { interest: 'Gotowanie', description: 'Zdrowe odżywianie' },
+  kubek: { interest: 'Kawa', description: 'Poranna rutyna' },
+  roslina: { interest: 'Ogrodnictwo', description: 'Dbanie o otoczenie' },
+  zegar: { interest: 'Produktywność', description: 'Zarządzanie czasem' },
+  sluchawki: { interest: 'Podcasty', description: 'Ciągły rozwój osobisty' },
+  gielda: { interest: 'Finanse', description: 'Edukacja finansowa' },
+  Rekawice: { interest: 'Sztuki walki', description: 'Budowanie dyscypliny' },
 }
 
-const interestToModel = Object.entries(modelToInterest).reduce((acc, [model, interest]) => {
-  acc[interest] = model;
+const interestToModel = Object.entries(modelData).reduce((acc, [model, data]) => {
+  acc[data.interest] = model;
   return acc;
 }, {} as Record<string, string>);
 
@@ -114,10 +114,20 @@ const CameraController = ({ setControls }: { setControls: (controls: any) => voi
 export const ActivityModels = () => {
   const [selected, setSelected] = useState<string[]>([])
   const [controls, setControls] = useState<any>(null)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const router = useRouter()
   const { data: profile, isLoading: isProfileLoading } = useProfile()
   const { mutateAsync: updateInterests, isPending: isUpdating } = useUpdateInterests()
   const rotateInterval = useRef<NodeJS.Timeout | null>(null)
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   useEffect(() => {
     if (profile?.interests) {
@@ -132,12 +142,12 @@ export const ActivityModels = () => {
     if (selected.includes(name)) {
       setSelected(selected.filter(s => s !== name))
     } else {
-      if (selected.length < 5) {
+      if (selected.length < 4) {
         setSelected([...selected, name])
       } else {
          toaster.create({
             title: "Maksymalna liczba wybrana",
-            description: "Możesz wybrać maksymalnie 5 przedmiotów",
+            description: "Możesz wybrać maksymalnie 4 przedmioty",
             type: "warning",
         });
       }
@@ -169,7 +179,7 @@ export const ActivityModels = () => {
 
   const handleNext = async () => {
       try {
-        const interests = selected.map(modelName => modelToInterest[modelName]).filter(Boolean)
+        const interests = selected.map(modelName => modelData[modelName]?.interest).filter(Boolean)
         
         await updateInterests(interests)
 
@@ -200,13 +210,37 @@ export const ActivityModels = () => {
   return (
     <Box position="relative" w="100%" h="100%">
       <Canvas shadows camera={{ position: [2.5, 1.5, 0], fov: 60 }} style={{ height: '100%', width: '100%' }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[0, 10, 5]} intensity={1} castShadow />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
+        <directionalLight position={[-5, 10, 5]} intensity={1} />
+        <directionalLight position={[0, 10, -5]} intensity={0.5} />
         <Suspense fallback={<Loader />}>
-            <Model selected={selected} onSelect={handleSelect} />
+            <Model selected={selected} onSelect={handleSelect} onHover={setHoveredItem} />
         </Suspense>
         <CameraController setControls={setControls} />
       </Canvas>
+
+      {hoveredItem && (
+        <Box 
+          position="fixed" 
+          left={mousePos.x-415} 
+          top={mousePos.y-130} 
+          zIndex={9999}
+          pointerEvents="none"
+          bg="rgba(0,0,0,0.9)" 
+          color="white" 
+          px={3} 
+          py={2} 
+          borderRadius="md" 
+          fontSize="sm"
+          textAlign="center"
+          w="max-content"
+          maxW="200px"
+        >
+          <Text fontWeight="bold" mb={1}>{modelData[hoveredItem]?.interest}</Text>
+          <Text fontSize="xs" color="gray.300">{modelData[hoveredItem]?.description}</Text>
+        </Box>
+      )}
       
       {/* Controls Overlay */}
       <HStack 
@@ -249,7 +283,7 @@ export const ActivityModels = () => {
       </HStack>
 
       {/* Next Button Overlay */}
-      {selected.length === 5 && (
+      {selected.length === 4 && (
           <Box position="absolute" bottom={4} right={4}>
               <Button 
                 onClick={handleNext} 
@@ -276,7 +310,7 @@ export const ActivityModels = () => {
         border="1px solid"
         borderColor="brand.borderColor"
       >
-          <Text fontWeight="bold" color="brand.mainText">Wybrano: {selected.length} / 5</Text>
+          <Text fontWeight="bold" color="brand.mainText">Wybrano: {selected.length} / 4</Text>
       </Box>
     </Box>
   )
@@ -288,12 +322,13 @@ interface SelectableMeshProps {
   name: string
   selected: string[]
   onSelect: (name: string) => void
+  onHover: (name: string | null) => void
   position?: [number, number, number] | THREE.Vector3
   rotation?: [number, number, number] | THREE.Euler
   scale?: number | [number, number, number] | THREE.Vector3
 }
 
-const SelectableMesh = ({ geometry, material, name, selected, onSelect, ...props }: SelectableMeshProps) => {
+const SelectableMesh = ({ geometry, material, name, selected, onSelect, onHover, ...props }: SelectableMeshProps) => {
   const isSelected = selected.includes(name)
   const [hovered, setHovered] = useState(false)
   
@@ -317,34 +352,24 @@ const SelectableMesh = ({ geometry, material, name, selected, onSelect, ...props
         geometry={geometry}
         material={clonedMaterial}
         onClick={handleClick}
-        onPointerOver={(e) => { e.stopPropagation(); setHovered(true) }}
-        onPointerOut={(e) => { e.stopPropagation(); setHovered(false) }}
+        onPointerOver={(e) => { 
+          e.stopPropagation()
+          setHovered(true)
+          onHover(name)
+        }}
+        onPointerOut={(e) => { 
+          e.stopPropagation()
+          setHovered(false)
+          onHover(null)
+        }}
         material-emissive={isSelected ? new THREE.Color(0xffa500) : new THREE.Color(0x000000)}
         material-emissiveIntensity={isSelected ? 0.5 : 0}
       />
-      {hovered && (
-        <Html position={[0, 0.2, 0]} center>
-          <ChakraProvider value={themeSystem}>
-            <Box 
-              bg="rgba(0,0,0,0.8)" 
-              color="white" 
-              px={3} 
-              py={1} 
-              borderRadius="md" 
-              fontSize="sm"
-              whiteSpace="nowrap"
-              pointerEvents="none"
-            >
-              {modelToInterest[name]}
-            </Box>
-          </ChakraProvider>
-        </Html>
-      )}
     </group>
   )
 }
 
-function Model({ selected, onSelect, ...props }: JSX.IntrinsicElements['group'] & { selected: string[], onSelect: (name: string) => void }) {
+function Model({ selected, onSelect, onHover, ...props }: JSX.IntrinsicElements['group'] & { selected: string[], onSelect: (name: string) => void, onHover: (name: string | null) => void }) {
   const { nodes, materials } = useGLTF('/modele.glb') as unknown as GLTFResult
   return (
     <group {...props} dispose={null}>
@@ -352,22 +377,22 @@ function Model({ selected, onSelect, ...props }: JSX.IntrinsicElements['group'] 
       <mesh castShadow receiveShadow geometry={nodes.Sciana.geometry} material={materials.sciana} position={[1.973, 1.154, 0]} />
       <mesh castShadow receiveShadow geometry={nodes.polki.geometry} material={materials.polki} position={[1.973, 1.63, 0]} />
       
-      <SelectableMesh name="matydojogi" geometry={nodes.matydojogi.geometry} material={materials.maty} position={[2.587, 1.166, -0.721]} rotation={[3.113, -0.885, 1.753]} scale={[0.128, 0.145, 0.214]} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="hantle" geometry={nodes.hantle.geometry} material={materials.hantle} position={[1.617, 1.077, -0.918]} rotation={[0, 0.357, -Math.PI / 2]} scale={0.033} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="gitara" geometry={nodes.gitara.geometry} material={materials.gitara} position={[2.875, 1.261, 0.233]} rotation={[3.132, 0.095, -1.444]} scale={0.239} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="ksiazki" geometry={nodes.ksiazki.geometry} material={materials.ksiazki} position={[1.402, 1.118, -0.741]} rotation={[0, -0.819, 0]} scale={0.08} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="walizka" geometry={nodes.walizka.geometry} material={materials.walizka} position={[1.06, 1.043, -0.064]} rotation={[0, -0.102, 0]} scale={[0.047, 0.148, 0.148]} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="puchar" geometry={nodes.puchar.geometry} material={materials.zloto} position={[1.403, 1.06, 0.729]} rotation={[0, 0.944, 0]} scale={[0.03, 0.015, 0.03]} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="zloto" geometry={nodes.zloto.geometry} material={materials.zloto} position={[1.185, 1.056, -0.51]} rotation={[-Math.PI, 1.408, -Math.PI]} scale={[0.022, 0.022, 0.046]} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="kostkarubika" geometry={nodes.kostkarubika.geometry} material={materials.kostkarubika} position={[2.689, 1.564, 0.614]} scale={0.047} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="komputer" geometry={nodes.komputer.geometry} material={materials.komputer} position={[1.868, 1.625, 0.934]} rotation={[-Math.PI, 0.007, -Math.PI]} scale={[0.052, 0.103, 0.103]} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="jedzenie" geometry={nodes.jedzenie.geometry} material={materials.jedzenie} position={[1.964, 1.121, -0.988]} rotation={[1.586, 0.745, -0.047]} scale={0.054} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="kubek" geometry={nodes.kubek.geometry} material={materials.kubek} position={[1.139, 1.041, 0.395]} rotation={[0, 0.776, 0]} scale={0.037} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="roslina" geometry={nodes.roslina.geometry} material={materials.roslina} position={[1.756, 1.137, 0.895]} scale={0.034} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="zegar" geometry={nodes.zegar.geometry} material={materials.zegar} position={[2.46, 1.245, 0.84]} rotation={[-Math.PI, 1.097, Math.PI / 2]} scale={0.124} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="sluchawki" geometry={nodes.sluchawki.geometry} material={materials.sluchawki} position={[2.012, 1.655, -0.891]} rotation={[Math.PI / 2, 0, 0]} scale={0.05} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="gielda" geometry={nodes.gielda.geometry} material={materials.gielda} position={[1.134, 1.633, -0.432]} rotation={[Math.PI / 2, 0, -1.109]} scale={0.113} selected={selected} onSelect={onSelect} />
-      <SelectableMesh name="Rekawice" geometry={nodes.Rekawice.geometry} material={materials.rekawice} position={[2.795, 1.583, -0.444]} rotation={[2.847, -0.495, 1.22]} scale={0} selected={selected} onSelect={onSelect} />
+      <SelectableMesh name="matydojogi" geometry={nodes.matydojogi.geometry} material={materials.maty} position={[2.587, 1.166, -0.721]} rotation={[3.113, -0.885, 1.753]} scale={[0.128, 0.145, 0.214]} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="hantle" geometry={nodes.hantle.geometry} material={materials.hantle} position={[1.617, 1.077, -0.918]} rotation={[0, 0.357, -Math.PI / 2]} scale={0.033} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="gitara" geometry={nodes.gitara.geometry} material={materials.gitara} position={[2.875, 1.261, 0.233]} rotation={[3.132, 0.095, -1.444]} scale={0.239} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="ksiazki" geometry={nodes.ksiazki.geometry} material={materials.ksiazki} position={[1.402, 1.118, -0.741]} rotation={[0, -0.819, 0]} scale={0.08} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="walizka" geometry={nodes.walizka.geometry} material={materials.walizka} position={[1.06, 1.043, -0.064]} rotation={[0, -0.102, 0]} scale={[0.047, 0.148, 0.148]} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="puchar" geometry={nodes.puchar.geometry} material={materials.zloto} position={[1.403, 1.06, 0.729]} rotation={[0, 0.944, 0]} scale={[0.03, 0.015, 0.03]} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="zloto" geometry={nodes.zloto.geometry} material={materials.zloto} position={[1.185, 1.056, -0.51]} rotation={[-Math.PI, 1.408, -Math.PI]} scale={[0.022, 0.022, 0.046]} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="kostkarubika" geometry={nodes.kostkarubika.geometry} material={materials.kostkarubika} position={[2.689, 1.564, 0.614]} scale={0.047} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="komputer" geometry={nodes.komputer.geometry} material={materials.komputer} position={[1.868, 1.625, 0.934]} rotation={[-Math.PI, 0.007, -Math.PI]} scale={[0.052, 0.103, 0.103]} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="jedzenie" geometry={nodes.jedzenie.geometry} material={materials.jedzenie} position={[1.964, 1.121, -0.988]} rotation={[1.586, 0.745, -0.047]} scale={0.054} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="kubek" geometry={nodes.kubek.geometry} material={materials.kubek} position={[1.139, 1.041, 0.395]} rotation={[0, 0.776, 0]} scale={0.037} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="roslina" geometry={nodes.roslina.geometry} material={materials.roslina} position={[1.756, 1.137, 0.895]} scale={0.034} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="zegar" geometry={nodes.zegar.geometry} material={materials.zegar} position={[2.46, 1.245, 0.84]} rotation={[-Math.PI, 1.097, Math.PI / 2]} scale={0.124} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="sluchawki" geometry={nodes.sluchawki.geometry} material={materials.sluchawki} position={[2.012, 1.655, -0.891]} rotation={[Math.PI / 2, 0, 0]} scale={0.05} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="gielda" geometry={nodes.gielda.geometry} material={materials.gielda} position={[1.134, 1.633, -0.432]} rotation={[Math.PI / 2, 0, -1.109]} scale={0.113} selected={selected} onSelect={onSelect} onHover={onHover} />
+      <SelectableMesh name="Rekawice" geometry={nodes.Rekawice.geometry} material={materials.rekawice} position={[2.795, 1.583, -0.444]} rotation={[2.847, -0.495, 1.22]} scale={0} selected={selected} onSelect={onSelect} onHover={onHover} />
     </group>
   )
 }

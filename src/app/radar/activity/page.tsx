@@ -176,12 +176,12 @@ export default function RadarActivityPage() {
                                 <Heading size="md" color="brand.mainText" textAlign="center">{activity.name}</Heading>
                                 
                                 {activity.description && (
-                                    <Text fontSize="sm" color="brand.content" textAlign="center">
+                                    <Text fontSize="sm" color={{ base: "gray.700", _dark: "gray.300" }} textAlign="center">
                                         {activity.description}
                                     </Text>
                                 )}
 
-                                <Flex align="center" gap={2} color="brand.content" fontSize="sm">
+                                <Flex align="center" gap={2} color={{ base: "gray.600", _dark: "gray.400" }} fontSize="sm">
                                     <Icon as={FaUsers} />
                                     <Text>{activity.participantsCount} uczestników</Text>
                                 </Flex>
@@ -190,7 +190,7 @@ export default function RadarActivityPage() {
                                     {activity.commonInterestsCount} wspólnych kategorii
                                 </Text>
 
-                                <Flex wrap="wrap" gap={2} justify="center" flex="1">
+                                <Flex wrap="wrap" gap={2} justify="center">
                                     {activity.interests.map((interest, index) => (
                                         <Badge 
                                             key={index} 

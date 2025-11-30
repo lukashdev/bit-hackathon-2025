@@ -101,17 +101,17 @@ async function main() {
             }
         });
         
+        // Shuffle interests to get unique random ones
+        const shuffledInterests = [...interests].sort(() => 0.5 - Math.random());
+        const selectedInterests = shuffledInterests.slice(0, 3);
+
         const updatedUser = await prisma.user.update({
             where: { id: res.user.id },
             data: {
                 image: userData.image,
                 streak: Math.floor(Math.random() * 30),
                 interests: {
-                    connect: [
-                        { id: interests[Math.floor(Math.random() * interests.length)].id },
-                        { id: interests[Math.floor(Math.random() * interests.length)].id },
-                        { id: interests[Math.floor(Math.random() * interests.length)].id },
-                    ]
+                    connect: selectedInterests.map(i => ({ id: i.id }))
                 }
             }
         });

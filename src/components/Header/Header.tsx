@@ -133,16 +133,18 @@ export function Header() {
                                 </Tooltip>
 
                                 <Popover.Root positioning={{ placement: "bottom-end", gutter: 10 }}>
-                                    <Tooltip content="Powiadomienia">
-                                        <Popover.Trigger asChild>
-                                            <Button variant="ghost" size="sm" position="relative">
-                                                <LuBell />
-                                                {invitations.length > 0 && (
-                                                    <Box position="absolute" top="0" right="0" w="8px" h="8px" bg="red.500" borderRadius="full" />
-                                                )}
-                                            </Button>
-                                        </Popover.Trigger>
-                                    </Tooltip>
+                                    <Popover.Trigger asChild>
+                                        <Box display="inline-block">
+                                            <Tooltip content="Powiadomienia">
+                                                <Button variant="ghost" size="sm" position="relative">
+                                                    <LuBell />
+                                                    {invitations.length > 0 && (
+                                                        <Box position="absolute" top="0" right="0" w="8px" h="8px" bg="red.500" borderRadius="full" />
+                                                    )}
+                                                </Button>
+                                            </Tooltip>
+                                        </Box>
+                                    </Popover.Trigger>
                                     <Popover.Positioner>
                                         <Popover.Content width="300px">
                                             <Popover.Arrow />

@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         const apiKey = process.env.GOOGLE_AI_API_KEY;
         if (apiKey) {
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
             const prompt = `
               Jesteś asystentem AI, który kategoryzuje aktywności.

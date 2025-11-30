@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 // --- Types ---
 
 export interface UserProfile {
+  id: string;
   nick: string;
   email: string;
   image?: string | null;
