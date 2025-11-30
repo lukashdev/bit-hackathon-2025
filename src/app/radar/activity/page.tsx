@@ -20,13 +20,42 @@ import NextLink from "next/link";
 import { Header } from "@/components/Header/Header";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { toaster } from "@/components/ui/toaster";
 import { FaUsers } from "react-icons/fa";
 
 export default function RadarActivityPage() {
   const { data: session, isPending: isSessionPending } = useSession();
   const router = useRouter();
   
-  const { data: activities, isLoading: isRadarLoading, isError } = useRadarActivity();
+  const { data: activities, isLoading: isRadarLoading, isError, refetch } = useRadarActivity();
+
+  const handleJoin = async (activityId: number) => {
+      try {
+          const res = await fetch(`/api/activities/${activityId}/join`, { method: "POST" });
+          if (!res.ok) {
+              const error = await res.json();
+              throw new Error(error.error || "Failed to join");
+          }
+          toaster.create({ title: "Sukces", description: "Wysłano prośbę o dołączenie", type: "success" });
+          refetch();
+      } catch (error: any) {
+          toaster.create({ title: "Błąd", description: error.message, type: "error" });
+      }
+  };
+
+  const handleCancelRequest = async (activityId: number) => {
+      try {
+          const res = await fetch(`/api/activities/${activityId}/join`, { method: "DELETE" });
+          if (!res.ok) {
+              const error = await res.json();
+              throw new Error(error.error || "Failed to cancel request");
+          }
+          toaster.create({ title: "Sukces", description: "Anulowano prośbę o dołączenie", type: "success" });
+          refetch();
+      } catch (error: any) {
+          toaster.create({ title: "Błąd", description: error.message, type: "error" });
+      }
+  };
 
   useEffect(() => {
     if (!isSessionPending && !session) {
@@ -180,16 +209,17 @@ export default function RadarActivityPage() {
                             <Button 
                                 mt={4}
                                 width="full" 
-                                variant="outline" 
-                                borderColor="brand.accent" 
-                                color="brand.highlight"
-                                _hover={{ bg: "brand.accent", color: "white" }}
-                                onClick={() => {
-                                    // Placeholder for join action
-                                    alert("Funkcja dołączania wkrótce!");
+                                variant={activity.hasPendingRequest ? "solid" : "outline"}
+                                borderColor={activity.hasPendingRequest ? "transparent" : "brand.accent"}
+                                bg={activity.hasPendingRequest ? "red.500" : "transparent"}
+                                color={activity.hasPendingRequest ? "white" : "brand.highlight"}
+                                _hover={{ 
+                                    bg: activity.hasPendingRequest ? "red.600" : "brand.accent", 
+                                    color: "white" 
                                 }}
+                                onClick={() => activity.hasPendingRequest ? handleCancelRequest(activity.id) : handleJoin(activity.id)}
                             >
-                                Dołącz
+                                {activity.hasPendingRequest ? "Anuluj prośbę" : "Dołącz"}
                             </Button>
                         </Box>
                     ))}

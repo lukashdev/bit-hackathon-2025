@@ -29,6 +29,11 @@ model User {
   
   progress      Progress[]
   proofs        Proof[]
+  likes         Like[]
+  
+  sentInvitations     Invitation[] @relation("SentInvitations")
+  receivedInvitations Invitation[] @relation("ReceivedInvitations")
+  joinRequests        JoinRequest[]
 
   @@unique([email])
   @@map("user")
@@ -101,6 +106,22 @@ model Activity {
   participants ActivityParticipant[]
   goals        Goal[]
   interests    Interest[]
+  invitations  Invitation[]
+  joinRequests JoinRequest[]
+}
+
+model JoinRequest {
+  id         Int      @id @default(autoincrement())
+  userId     String
+  activityId Int
+  status     String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, activityId])
 }
 
 model ActivityParticipant {
@@ -162,4 +183,31 @@ model Proof {
 
   goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes Like[]
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  proofId   Int
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  proof Proof @relation(fields: [proofId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, proofId])
+}
+
+model Invitation {
+  id         Int      @id @default(autoincrement())
+  senderId   String
+  receiverId String
+  activityId Int
+  status     String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  sender     User     @relation("SentInvitations", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedInvitations", fields: [receiverId], references: [id], onDelete: Cascade)
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
 }

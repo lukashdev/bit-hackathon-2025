@@ -102,6 +102,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
+    // Check if user already uploaded a proof for this goal
+    const existingProof = await prisma.proof.findFirst({
+        where: {
+            goalId: parseInt(goalId.toString()),
+            userId: session.user.id
+        }
+    });
+
+    if (existingProof) {
+        return NextResponse.json({ error: "You have already submitted a proof for this goal" }, { status: 400 });
+    }
+
     // Konwersja File na Buffer/Bytes
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);

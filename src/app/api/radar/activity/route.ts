@@ -48,6 +48,12 @@ export async function GET(request: Request) {
         interests: true,
         _count: {
           select: { participants: true }
+        },
+        joinRequests: {
+            where: {
+                userId: currentUserId,
+                status: "PENDING"
+            }
         }
       },
     });
@@ -67,6 +73,7 @@ export async function GET(request: Request) {
         participantsCount: activity._count.participants,
         commonInterestsCount,
         interests: activity.interests.map((i) => i.name),
+        hasPendingRequest: activity.joinRequests.length > 0
       };
     });
 

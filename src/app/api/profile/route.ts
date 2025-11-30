@@ -91,6 +91,15 @@ export async function GET(request: Request) {
         }
     }
 
+    // Calculate total likes received
+    const likesReceived = await prisma.like.count({
+        where: {
+            proof: {
+                userId: session.user.id
+            }
+        }
+    });
+
     // Collect active goals
     const activeGoals = user.activities.flatMap(a => a.activity.goals);
 
@@ -119,6 +128,7 @@ export async function GET(request: Request) {
         totalTasks: totalGoals, // Renaming to generic 'tasks' for frontend compatibility or 'totalGoals'
         completedTasks: completedGoals,
         progress: Math.round(progressPercentage),
+        likesReceived: likesReceived,
       },
       activeGoals: activeGoals,
       activeGoalsCount: activeGoals.length,

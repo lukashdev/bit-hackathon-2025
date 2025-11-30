@@ -1,5 +1,6 @@
 import { Provider } from "@/components/ui/provider";
 import { InterestGuard } from "@/components/InterestGuard";
+import { DemoSwitcher } from "@/components/DemoSwitcher";
 import type { Metadata } from "next";
 import "@/styles/global.css";
 
@@ -20,6 +21,7 @@ export default function RootLayout({
           <InterestGuard>
             {children}
           </InterestGuard>
+          <DemoSwitcher />
         </Provider>
       </body>
     </html>

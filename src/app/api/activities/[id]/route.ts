@@ -26,10 +26,39 @@ export async function GET(
     const activity = await prisma.activity.findUnique({
       where: { id: activityId },
       include: {
-        goals: true,
+        goals: {
+            include: {
+                progress: {
+                    where: { userId: session.user.id }
+                },
+                proofs: {
+                    include: {
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                image: true
+                            }
+                        },
+                        likes: true
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
+            }
+        },
         interests: true,
         participants: {
-            where: { userId: session.user.id }
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true
+                    }
+                }
+            }
         }
       },
     });
@@ -39,7 +68,8 @@ export async function GET(
     }
 
     // Check if user is a participant
-    if (activity.participants.length === 0) {
+    const isParticipant = activity.participants.some(p => p.userId === session.user.id);
+    if (!isParticipant) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -102,7 +132,7 @@ export async function PUT(
             // Get existing goals
             const existingGoals = await tx.goal.findMany({
                 where: { activityId: activityId },
-                select: { id: true }
+                select: { id: true, endDate: true }
             });
             const existingGoalIds = existingGoals.map(g => g.id);
 
@@ -111,10 +141,19 @@ export async function PUT(
                 .map((g: any) => g.id);
 
             // Delete goals that are not in the incoming list
-            const goalsToDelete = existingGoalIds.filter(id => !incomingGoalIds.includes(id));
-            if (goalsToDelete.length > 0) {
+            const goalsToDeleteIds = existingGoalIds.filter(id => !incomingGoalIds.includes(id));
+            if (goalsToDeleteIds.length > 0) {
+                // Check if any goal to delete is ended
+                const endedGoalsToDelete = existingGoals.filter(g => 
+                    goalsToDeleteIds.includes(g.id) && new Date(g.endDate) < new Date()
+                );
+
+                if (endedGoalsToDelete.length > 0) {
+                    throw new Error("CANNOT_DELETE_ENDED_GOAL");
+                }
+
                 await tx.goal.deleteMany({
-                    where: { id: { in: goalsToDelete } }
+                    where: { id: { in: goalsToDeleteIds } }
                 });
             }
 
@@ -149,8 +188,11 @@ export async function PUT(
 
     return NextResponse.json(updatedActivity);
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating activity:", error);
+    if (error.message === "CANNOT_DELETE_ENDED_GOAL") {
+        return NextResponse.json({ error: "Nie można usunąć zakończonych celów" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

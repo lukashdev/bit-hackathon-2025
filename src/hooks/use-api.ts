@@ -11,6 +11,7 @@ export interface UserProfile {
     totalTasks: number;
     completedTasks: number;
     progress: number;
+    likesReceived: number;
   };
   activeGoals: Goal[];
   activeGoalsCount: number;
@@ -89,6 +90,7 @@ export interface RadarActivity {
   participantsCount: number;
   commonInterestsCount: number;
   interests: string[];
+  hasPendingRequest: boolean;
 }
 
 // --- Hooks ---
@@ -114,6 +116,25 @@ export function useUserProfile(userId: string) {
       return res.json();
     },
     enabled: !!userId,
+  });
+}
+
+export function useUpdateInterests() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (interests: string[]) => {
+      const res = await fetch("/api/users/interests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ interests }),
+      });
+      if (!res.ok) throw new Error("Failed to update interests");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["radar"] });
+    },
   });
 }
 
