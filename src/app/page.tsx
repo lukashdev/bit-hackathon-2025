@@ -1,7 +1,8 @@
 "use client";
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
-import { Box, Flex, Heading, Image, Stack, Button, Text, Link } from "@chakra-ui/react";
+import { Box, Flex, Heading, Image, Stack, Button, Text } from "@chakra-ui/react";
+import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
               Porzuć prokrastynację i odzyskaj kontrolę nad swoim życiem.
             </Heading>
             <Button 
+              asChild
               size={{ base: "md", md: "lg" }} 
               bg="brand.accent"
               color="brand.buttonText"
@@ -36,11 +38,9 @@ export default function Home() {
               boxShadow="md"
               w={{ base: "full", md: "auto" }}
               >
-                {!session ? <Link href="/register" _hover={{ textDecoration: "none", color: "inherit" }}>
-              Rozpocznij swoją podróż już dziś!
-              </Link> : <Link href="/profile" _hover={{ textDecoration: "none", color: "inherit" }}>
-              Przejdź do swojego profilu
-              </Link>}
+                <Link href={!session ? "/register" : "/profile"}>
+                  {!session ? "Rozpocznij swoją podróż już dziś!" : "Przejdź do swojego profilu"}
+                </Link>
             </Button>
           </Box>
           <Box w={{ base: "100%", md: "50%" }} display="flex" justifyContent={{ base: "center", md: "flex-end" }}>

@@ -83,7 +83,7 @@ export default function ActivityProgressPage({ params }: { params: Promise<{ id:
     const completedGoals = activity.goals.filter(g => {
         const proof = g.proofs.find(p => p.userId === targetUserId)
         if (!proof) return false
-        const requiredLikes = Math.ceil(activity.participants.length * 0.51)
+        const requiredLikes = Math.ceil(activity.participants.length * 0.50)
         return proof.likes.length >= requiredLikes
     }).length
 
@@ -143,7 +143,7 @@ export default function ActivityProgressPage({ params }: { params: Promise<{ id:
                     {activity.goals.map(goal => {
                         const proof = goal.proofs.find(p => p.userId === targetUserId)
                         const participantsCount = activity.participants.length
-                        const requiredLikes = Math.ceil(participantsCount * 0.51)
+                        const requiredLikes = Math.ceil(participantsCount * 0.50)
                         const likesCount = proof ? proof.likes.length : 0
                         const isVerified = likesCount >= requiredLikes
                         const isSubmitted = !!proof
