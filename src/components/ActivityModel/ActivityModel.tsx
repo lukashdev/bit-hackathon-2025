@@ -302,18 +302,36 @@ const SelectableMesh = ({ geometry, material, name, selected, onSelect, ...props
   }, [material])
 
   return (
-    <mesh
-      {...props}
-      castShadow
-      receiveShadow
-      geometry={geometry}
-      material={clonedMaterial}
-      onClick={handleClick}
-      onPointerOver={(e) => { e.stopPropagation(); setHovered(true) }}
-      onPointerOut={(e) => { e.stopPropagation(); setHovered(false) }}
-      material-emissive={isSelected ? new THREE.Color(0xffa500) : new THREE.Color(0x000000)}
-      material-emissiveIntensity={isSelected ? 0.5 : 0}
-    />
+    <group>
+      <mesh
+        {...props}
+        castShadow
+        receiveShadow
+        geometry={geometry}
+        material={clonedMaterial}
+        onClick={handleClick}
+        onPointerOver={(e) => { e.stopPropagation(); setHovered(true) }}
+        onPointerOut={(e) => { e.stopPropagation(); setHovered(false) }}
+        material-emissive={isSelected ? new THREE.Color(0xffa500) : new THREE.Color(0x000000)}
+        material-emissiveIntensity={isSelected ? 0.5 : 0}
+      />
+      {hovered && (
+        <Html position={[0, 0.2, 0]} center>
+          <Box 
+            bg="rgba(0,0,0,0.8)" 
+            color="white" 
+            px={3} 
+            py={1} 
+            borderRadius="md" 
+            fontSize="sm"
+            whiteSpace="nowrap"
+            pointerEvents="none"
+          >
+            {modelToInterest[name]}
+          </Box>
+        </Html>
+      )}
+    </group>
   )
 }
 

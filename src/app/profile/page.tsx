@@ -219,48 +219,6 @@ export default function Profile() {
                 </Stack>
               </Card.Body>
             </Card.Root>
-
-            {/* Zakończone aktywności */}
-            <Card.Root w="100%" {...cardStyles}>
-              <Card.Header>
-                <Heading size="lg" color="brand.mainText">Aktywności zakończone</Heading>
-              </Card.Header>
-              <Card.Body>
-                {profile.lastCompletedGoal ? (
-                    <>
-                        <Box
-                          bg="brand.glassBgInner"
-                          p={4}
-                          borderRadius="md"
-                          borderLeftWidth="4px"
-                          borderLeftColor="green.500"
-                        >
-                          <Heading size="md" mb={1} color="brand.mainText">
-                            {profile.lastCompletedGoal.title}
-                          </Heading>
-                          <Text color="brand.content">Status: Zakończone</Text>
-                          <Text fontSize="sm" color="brand.content" paddingTop={"10px"}>
-                            Świetna robota. Teraz udokumentuj swoje osiągnięcie. Prześlij zdjęcie lub zrzut ekranu, aby partner mógł potwierdzić wykonanie zadania i odnotować Twój sukces.
-                          </Text>
-                        </Box>
-                        <Button 
-                          mt={3} 
-                          bg="brand.accent" 
-                          color="brand.buttonText"
-                          _hover={{ bg: "brand.accent2" }}
-                          size="sm" 
-                          w="50%" 
-                          margin="auto"
-                        >
-                          Prześlij dowód
-                        </Button>
-                    </>
-                ) : (
-                    <Text color="brand.content">Brak zakończonych aktywności</Text>
-                )}
-              </Card.Body>
-            </Card.Root>
-
           </VStack>
         </HStack>
       </Container>

@@ -4,6 +4,8 @@ import { ActivityModels } from "@/components/ActivityModel/ActivityModel";
 import { Header } from "@/components/Header/Header";
 import { Box, Container, Heading, VStack, Text } from "@chakra-ui/react";
 
+import { Footer } from "@/components/Footer/Footer";
+
 export default function Page() {
     return (
         <Box minH="100vh" display="flex" flexDirection="column">
@@ -15,7 +17,10 @@ export default function Page() {
                             Wybierz swoje zainteresowania
                         </Heading>
                         <Text color="brand.mainText" fontSize="lg">
-                            Zaznacz 5 przedmiotów, które najlepiej Cię opisują
+                            Zaznacz 5 przedmiotów, które najlepiej Cię opisują.
+                        </Text>
+                        <Text color="gray.500" fontSize="sm">
+                            Pomoże nam to dopasować aktywności idealne dla Ciebie.
                         </Text>
                     </VStack>
                     
@@ -33,6 +38,7 @@ export default function Page() {
                     </Box>
                 </VStack>
             </Container>
+            <Footer />
         </Box>
     )
 }

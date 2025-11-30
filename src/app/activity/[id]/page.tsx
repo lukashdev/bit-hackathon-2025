@@ -12,6 +12,8 @@ import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { Popover } from "@chakra-ui/react"
 
+import { Skeleton } from "@/components/ui/skeleton"
+
 interface User {
     id: string
     name: string
@@ -320,7 +322,36 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
         }
     }
 
-    if (loading) return <Container maxW="8xl" py={8}><Spinner /></Container>
+    if (loading) return (
+        <>
+            <Header />
+            <Container maxW="8xl" py={8} minH="calc(100vh - 74px)">
+                <Box w="100%" p={8} borderRadius="xl" bg={{ base: "whiteAlpha.500", _dark: "whiteAlpha.100" }} mb={6} borderWidth="1px" borderColor="whiteAlpha.200">
+                    <Flex justify="space-between" align="start" direction={{ base: "column", md: "row" }} gap={4}>
+                        <Box flex={1}>
+                            <Skeleton height="40px" width="300px" mb={2} />
+                            <Skeleton height="20px" width="100%" mb={4} />
+                            <Skeleton height="20px" width="80%" />
+                        </Box>
+                        <Skeleton height="40px" width="200px" />
+                    </Flex>
+                </Box>
+                <Grid templateColumns={{ base: "1fr", lg: "3fr 1fr" }} gap={6}>
+                    <GridItem>
+                        <VStack gap={6} align="stretch">
+                            <Skeleton height="30px" width="200px" />
+                            <Skeleton height="200px" width="100%" />
+                            <Skeleton height="200px" width="100%" />
+                        </VStack>
+                    </GridItem>
+                    <GridItem>
+                        <Skeleton height="300px" width="100%" />
+                    </GridItem>
+                </Grid>
+            </Container>
+            <Footer />
+        </>
+    )
     if (!activity) return <Container maxW="8xl" py={8}><Text>Nie znaleziono aktywności</Text></Container>
 
     const currentDate = new Date()
@@ -717,7 +748,7 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
                             <Stack gap={6}>
                                 {allProofs.map((proof) => {
                                     const PARTICIPANTS_COUNT = activity.participants.length
-                                    const REQUIRED_LIKES = Math.ceil(PARTICIPANTS_COUNT * 0.51)
+                                    const REQUIRED_LIKES = Math.ceil(PARTICIPANTS_COUNT * 0.50)
                                     const likesCount = proof.likes.length
                                     const isVerified = likesCount >= REQUIRED_LIKES
                                     const isLikedByMe = proof.likes.some(l => l.userId === session?.user?.id)
@@ -869,20 +900,22 @@ export default function ActivityPage({ params }: { params: Promise<{ id: string 
                                         <Heading size="md">Uczestnicy ({activity.participants.length})</Heading>
                                     </HStack>
                                     {isAdmin && (
-                                        <Popover.Root>
+                                        <Popover.Root positioning={{ placement: "bottom-end" }}>
                                             <Popover.Trigger asChild>
                                                 <Button size="xs" variant="ghost"><UserPlus size={16} /></Button>
                                             </Popover.Trigger>
-                                            <Popover.Content>
-                                                <Popover.Arrow />
-                                                <Popover.Body>
-                                                    <Heading size="sm" mb={2}>Zaproś użytkownika</Heading>
-                                                    <HStack>
-                                                        <Input placeholder="Email" size="sm" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
-                                                        <Button size="sm" onClick={handleInvite} loading={inviting}>Wyślij</Button>
-                                                    </HStack>
-                                                </Popover.Body>
-                                            </Popover.Content>
+                                            <Popover.Positioner>
+                                                <Popover.Content width="300px">
+                                                    <Popover.Arrow />
+                                                    <Popover.Body>
+                                                        <Heading size="sm" mb={2}>Zaproś użytkownika</Heading>
+                                                        <HStack>
+                                                            <Input placeholder="Email" size="sm" value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} />
+                                                            <Button size="sm" onClick={handleInvite} loading={inviting}>Wyślij</Button>
+                                                        </HStack>
+                                                    </Popover.Body>
+                                                </Popover.Content>
+                                            </Popover.Positioner>
                                         </Popover.Root>
                                     )}
                                 </HStack>
