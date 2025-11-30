@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
 model User {
@@ -61,9 +62,9 @@ model Account {
   providerId            String
   userId                String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
   scope                 String?
@@ -178,7 +179,7 @@ model Proof {
   id         Int      @id @default(autoincrement())
   goalId     Int
   userId     String
-  proofImage Bytes
+  proofImage Bytes @db.LongBlob
   createdAt  DateTime @default(now())
 
   goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
