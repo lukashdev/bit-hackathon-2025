@@ -1,8 +1,8 @@
 "use client"
-import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton, Popover } from "@chakra-ui/react";
+import { Box, Button, Container, HStack, Text, Flex, Heading, Skeleton, Popover, Image, ClientOnly } from "@chakra-ui/react";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { ColorModeButton } from "@/components/ui/color-mode";
+import { ColorModeButton, useColorModeValue } from "@/components/ui/color-mode";
 import { AccessibilityControls } from "@/components/ui/accessibility-controls";
 import Link from "next/link";
 import { LuLogOut, LuUser, LuBell, LuPlus } from "react-icons/lu";
@@ -19,6 +19,7 @@ export function Header() {
     const session = useSession();
     const router = useRouter()
     const [invitations, setInvitations] = useState<Invitation[]>([])
+    const logoSrc = useColorModeValue("/logo-black.png", "/logo.png")
 
     const signOutHandler = async () => {
         await signOut();
@@ -77,20 +78,24 @@ export function Header() {
                     <Link href="/">
                         <HStack gap={2} cursor="pointer">
                             <Box 
-                                w="32px" 
-                                h="32px" 
+                                w="52px" 
+                                h="52px" 
                                 bg="brand.accent" 
                                 borderRadius="lg" 
                                 display="flex" 
                                 alignItems="center" 
                                 justifyContent="center"
-                                transform="rotate(15deg)"
                             >
-                                <Text color="brand.mainText" fontWeight="bold" fontSize="lg">L</Text>
+                                <ClientOnly fallback={<Skeleton w="40px" h="40px" />}>
+                                    <Image 
+                                        src={logoSrc} 
+                                        alt="Logo" 
+                                        maxH="52px" 
+                                        objectFit="contain"
+                                    />
+                                </ClientOnly>
                             </Box>
-                            <Heading size="lg" color="brand.mainText" fontWeight="bold" letterSpacing="tight">
-                                LosersLogo
-                            </Heading>
+                            <Text fontWeight="bold" color="brand.mainText" fontSize="lg" ml={2}>GlowUp Together</Text>
                         </HStack>
                     </Link>
 

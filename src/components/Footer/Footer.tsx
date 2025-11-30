@@ -1,8 +1,12 @@
-import { Box, Container, HStack, Text, Stack, Link, Icon, Separator, Heading } from "@chakra-ui/react";
+"use client"
+import { Box, Container, HStack, Text, Stack, Link, Icon, Separator, Heading, Image, ClientOnly, Skeleton } from "@chakra-ui/react";
 import { LuGithub, LuTwitter, LuLinkedin } from "react-icons/lu";
+import { useColorModeValue } from "@/components/ui/color-mode";
 
 export function Footer() {
+  const logoSrc = useColorModeValue("/logo-black.png", "/logo.png");
   return (
+    
     <Box 
       as="footer" 
       w="100%" 
@@ -23,20 +27,24 @@ export function Footer() {
           >
             <HStack gap={2}>
                 <Box 
-                    w="32px" 
-                    h="32px" 
+                    w="52px" 
+                    h="52px" 
                     bg="brand.accent" 
                     borderRadius="lg" 
                     display="flex" 
                     alignItems="center" 
                     justifyContent="center"
-                    transform="rotate(15deg)"
                 >
-                    <Text color="brand.mainText" fontWeight="bold" fontSize="lg">L</Text>
+                    <ClientOnly fallback={<Skeleton w="40px" h="40px" />}>
+                        <Image 
+                          src={logoSrc}
+                          alt="Logo" 
+                          maxH="52px"
+                          objectFit="contain"
+                        />
+                    </ClientOnly>
                 </Box>
-                <Heading size="lg" color="brand.mainText" fontWeight="bold" letterSpacing="tight">
-                    LosersLogo
-                </Heading>
+                <Text fontWeight="bold" color="brand.mainText" fontSize="lg" ml={2}>GlowUp Together</Text>
             </HStack>
             
             <HStack gap={4}>
