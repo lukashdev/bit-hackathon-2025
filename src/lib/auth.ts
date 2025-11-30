@@ -1,13 +1,11 @@
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { PrismaClient } from "@prisma/client";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth";
-
-const client = new PrismaClient();
+import { prisma } from "./prisma";
 
 export const auth = betterAuth({
-    database: prismaAdapter(client, {
-        provider: "sqlite",
+    database: prismaAdapter(prisma, {
+        provider: "mysql",
     }),
     appName: "bit-hackathon-2025",
     plugins: [nextCookies()],
